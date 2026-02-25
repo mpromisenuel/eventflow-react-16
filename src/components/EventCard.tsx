@@ -13,10 +13,7 @@ const EventCard = ({ event }: EventCardProps) => {
   const spotsLeft = event.maxAttendees - event.attendees;
 
   return (
-    <Link
-      to={`/event/${event.id}`}
-      className="group block animate-fade-in"
-    >
+    <Link to={`/event/${event.id}`} className="group block">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
         <div className="relative h-48 overflow-hidden">
           <img
