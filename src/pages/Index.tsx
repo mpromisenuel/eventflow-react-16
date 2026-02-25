@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
 import { EventCategory, categoryLabels } from "@/lib/types";
 import EventCard from "@/components/EventCard";
@@ -258,10 +259,10 @@ const Index = () => {
               <span className="font-display text-lg font-bold">Eventful</span>
             </div>
             <div className="flex gap-8 text-sm font-body opacity-70">
-              <span>Home</span>
-              <span>About</span>
-              <span>Events</span>
-              <span>Contact</span>
+              <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
+              <Link to="/about" className="hover:opacity-100 transition-opacity">About</Link>
+              <Link to="/events" className="hover:opacity-100 transition-opacity">Events</Link>
+              <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
             <p className="text-xs font-body opacity-50">
               © 2026 Eventful. All rights reserved.
