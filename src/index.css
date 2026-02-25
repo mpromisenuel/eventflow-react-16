@@ -6,86 +6,86 @@
 
 @layer base {
   :root {
-    --background: 40 33% 98%;
-    --foreground: 20 20% 12%;
+    --background: 0 0% 100%;
+    --foreground: 150 20% 10%;
 
-    --card: 40 40% 97%;
-    --card-foreground: 20 20% 12%;
+    --card: 0 0% 99%;
+    --card-foreground: 150 20% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 20% 12%;
+    --popover-foreground: 150 20% 10%;
 
-    --primary: 25 80% 52%;
-    --primary-foreground: 40 33% 98%;
+    --primary: 152 60% 24%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 30 30% 92%;
-    --secondary-foreground: 20 20% 20%;
+    --secondary: 150 10% 94%;
+    --secondary-foreground: 150 20% 15%;
 
-    --muted: 35 20% 93%;
-    --muted-foreground: 20 10% 50%;
+    --muted: 150 8% 94%;
+    --muted-foreground: 150 8% 45%;
 
-    --accent: 15 60% 58%;
-    --accent-foreground: 40 33% 98%;
+    --accent: 152 50% 30%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 88%;
-    --input: 30 20% 88%;
-    --ring: 25 80% 52%;
+    --border: 150 10% 88%;
+    --input: 150 10% 88%;
+    --ring: 152 60% 24%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
-    --sidebar-background: 35 30% 96%;
-    --sidebar-foreground: 20 20% 20%;
-    --sidebar-primary: 25 80% 52%;
-    --sidebar-primary-foreground: 40 33% 98%;
-    --sidebar-accent: 30 25% 90%;
-    --sidebar-accent-foreground: 20 20% 20%;
-    --sidebar-border: 30 20% 88%;
-    --sidebar-ring: 25 80% 52%;
+    --sidebar-background: 150 10% 96%;
+    --sidebar-foreground: 150 20% 15%;
+    --sidebar-primary: 152 60% 24%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 10% 92%;
+    --sidebar-accent-foreground: 150 20% 15%;
+    --sidebar-border: 150 10% 88%;
+    --sidebar-ring: 152 60% 24%;
 
-    --warm: 38 60% 50%;
-    --warm-foreground: 40 33% 98%;
-    --gold: 43 80% 60%;
-    --terracotta: 12 55% 55%;
+    --warm: 152 45% 35%;
+    --warm-foreground: 0 0% 100%;
+    --gold: 45 80% 50%;
+    --terracotta: 152 35% 45%;
 
     --font-display: 'Playfair Display', serif;
     --font-body: 'DM Sans', sans-serif;
   }
 
   .dark {
-    --background: 20 20% 8%;
-    --foreground: 40 20% 92%;
-    --card: 20 18% 12%;
-    --card-foreground: 40 20% 92%;
-    --popover: 20 18% 12%;
-    --popover-foreground: 40 20% 92%;
-    --primary: 25 80% 55%;
-    --primary-foreground: 20 20% 8%;
-    --secondary: 20 15% 18%;
-    --secondary-foreground: 40 20% 92%;
-    --muted: 20 12% 18%;
-    --muted-foreground: 30 10% 55%;
-    --accent: 15 60% 58%;
-    --accent-foreground: 20 20% 8%;
+    --background: 150 15% 6%;
+    --foreground: 0 0% 95%;
+    --card: 150 12% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 150 12% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 152 55% 35%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 150 10% 15%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 150 8% 15%;
+    --muted-foreground: 150 5% 55%;
+    --accent: 152 45% 40%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 20 12% 20%;
-    --input: 20 12% 20%;
-    --ring: 25 80% 55%;
-    --sidebar-background: 20 18% 10%;
-    --sidebar-foreground: 40 20% 92%;
-    --sidebar-primary: 25 80% 55%;
-    --sidebar-primary-foreground: 20 20% 8%;
-    --sidebar-accent: 20 12% 16%;
-    --sidebar-accent-foreground: 40 20% 92%;
-    --sidebar-border: 20 12% 20%;
-    --sidebar-ring: 25 80% 55%;
-    --warm: 38 60% 50%;
-    --warm-foreground: 20 20% 8%;
-    --gold: 43 80% 60%;
-    --terracotta: 12 55% 55%;
+    --border: 150 8% 18%;
+    --input: 150 8% 18%;
+    --ring: 152 55% 35%;
+    --sidebar-background: 150 12% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 152 55% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 8% 14%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 150 8% 18%;
+    --sidebar-ring: 152 55% 35%;
+    --warm: 152 45% 40%;
+    --warm-foreground: 0 0% 100%;
+    --gold: 45 80% 55%;
+    --terracotta: 152 35% 50%;
   }
 }
 
@@ -105,9 +105,9 @@
 @layer utilities {
   .text-gradient {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--gold)));
+    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
   }
   .glass {
-    @apply bg-background/80 backdrop-blur-lg border border-border/50;
+    @apply bg-background/90 backdrop-blur-lg border border-border/50;
   }
 }
