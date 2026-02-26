@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
+// Event context provider for global event state management
 import { Event } from "@/lib/types";
 import { sampleEvents } from "@/lib/sample-events";
 
