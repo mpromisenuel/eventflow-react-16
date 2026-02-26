@@ -9,7 +9,14 @@ export interface Event {
   attendees: number;
   maxAttendees: number;
   image: string;
+  images: string[];
   status: "upcoming" | "ongoing" | "completed";
+  likes: number;
+  liked: boolean;
+  rating: number;
+  ratingCount: number;
+  price: number;
+  orders: number;
 }
 
 export type EventCategory = "conference" | "workshop" | "social" | "networking" | "celebration";

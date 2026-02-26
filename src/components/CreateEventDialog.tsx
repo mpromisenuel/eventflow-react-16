@@ -47,11 +47,19 @@ const CreateEventDialog = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const img = defaultImages[form.category];
     addEvent({
       ...form,
       attendees: 0,
-      image: defaultImages[form.category],
+      image: img,
+      images: [img],
       status: "upcoming",
+      likes: 0,
+      liked: false,
+      rating: 0,
+      ratingCount: 0,
+      price: 0,
+      orders: 0,
     });
     setForm({
       title: "",
