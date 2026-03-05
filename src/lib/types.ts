@@ -1,3 +1,5 @@
+export type VenueType = "hall" | "beach" | "grounds" | "rooftop" | "garden" | "ballroom";
+
 export interface Event {
   id: string;
   title: string;
@@ -17,9 +19,33 @@ export interface Event {
   ratingCount: number;
   price: number;
   orders: number;
+  // Comprehensive fields
+  venueType: VenueType;
+  propertyRef?: string;
+  agentName?: string;
+  agentPhone?: string;
+  agentWebsite?: string;
+  amenities: string[];
+  inclusions: string[];
+  extraFees?: string[];
+  address: string;
+  city: string;
+  region: string;
+  mapUrl?: string;
+  marketStatus: "available" | "booked" | "sold-out";
+  lastUpdated: string;
 }
 
 export type EventCategory = "conference" | "workshop" | "social" | "networking" | "celebration";
+
+export const venueTypeLabels: Record<VenueType, string> = {
+  hall: "Hall / Indoor",
+  beach: "Beach",
+  grounds: "Spacious Grounds",
+  rooftop: "Rooftop",
+  garden: "Garden",
+  ballroom: "Ballroom",
+};
 
 export const categoryColors: Record<EventCategory, string> = {
   conference: "bg-primary/10 text-primary",
