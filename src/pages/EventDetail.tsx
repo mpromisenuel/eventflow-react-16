@@ -1,17 +1,29 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
-import { categoryColors, categoryLabels } from "@/lib/types";
+import { categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import {
   ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star,
   ShoppingCart, ChevronLeft, ChevronRight, Minus, Plus,
+  Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.1, duration: 0.5, ease: [0, 0, 0.2, 1] as const },
+  }),
+};
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -71,8 +83,21 @@ const EventDetail = () => {
       <Navbar />
 
       {/* Hero image carousel */}
-      <div className="relative h-64 md:h-96 overflow-hidden">
-        <img src={images[currentImage]} alt={event.title} className="h-full w-full object-cover transition-all duration-500" />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative h-64 md:h-[420px] overflow-hidden"
+      >
+        <motion.img
+          key={currentImage}
+          initial={{ scale: 1.05, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          src={images[currentImage]}
+          alt={event.title}
+          className="h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/30 to-transparent" />
 
         {images.length > 1 && (
@@ -102,14 +127,29 @@ const EventDetail = () => {
         )}
 
         <div className="absolute bottom-0 left-0 right-0 container mx-auto px-4 pb-8">
-          <Badge className={`${categoryColors[event.category]} border-none mb-3 font-body`}>
-            {categoryLabels[event.category]}
-          </Badge>
+          <div className="flex items-center gap-2 mb-3">
+            <Badge className={`${categoryColors[event.category]} border-none font-body`}>
+              {categoryLabels[event.category]}
+            </Badge>
+            <Badge variant="outline" className="bg-background/80 font-body text-xs">
+              {venueTypeLabels[event.venueType]}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={`font-body text-xs ${
+                event.marketStatus === "available"
+                  ? "bg-primary/20 text-primary-foreground border-primary/30"
+                  : "bg-destructive/20 text-primary-foreground border-destructive/30"
+              }`}
+            >
+              {event.marketStatus === "available" ? "Available" : event.marketStatus === "booked" ? "Booked" : "Sold Out"}
+            </Badge>
+          </div>
           <h1 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground max-w-3xl">
             {event.title}
           </h1>
         </div>
-      </div>
+      </motion.div>
 
       {/* Thumbnail strip */}
       {images.length > 1 && (
@@ -139,24 +179,132 @@ const EventDetail = () => {
         <div className="grid md:grid-cols-3 gap-10">
           {/* Main content */}
           <div className="md:col-span-2 space-y-8">
-            <div>
+            {/* About */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
               <h2 className="font-display text-xl font-semibold mb-3">About this event</h2>
               <p className="text-muted-foreground font-body leading-relaxed">{event.description}</p>
-            </div>
+            </motion.div>
+
+            {/* Property Details */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={1} className="border border-border rounded-xl p-6 space-y-4">
+              <h3 className="font-display text-lg font-semibold flex items-center gap-2">
+                <Info className="h-5 w-5 text-primary" /> Property Details
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-4 text-sm font-body">
+                {event.propertyRef && (
+                  <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-primary" />
+                    <span className="text-muted-foreground">Property Ref:</span>
+                    <span className="font-medium">{event.propertyRef}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="text-muted-foreground">Last Updated:</span>
+                  <span className="font-medium">{event.lastUpdated}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <span className="text-muted-foreground">Type:</span>
+                  <span className="font-medium">{venueTypeLabels[event.venueType]}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className="font-medium capitalize">{event.marketStatus}</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Location & Address */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="border border-border rounded-xl p-6 space-y-4">
+              <h3 className="font-display text-lg font-semibold flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-primary" /> Location Details
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-3 text-sm font-body">
+                <div>
+                  <p className="text-muted-foreground text-xs">Address</p>
+                  <p className="font-medium">{event.address}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">City / Area</p>
+                  <p className="font-medium">{event.city}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Region</p>
+                  <p className="font-medium">{event.region}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Country</p>
+                  <p className="font-medium">Ghana</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* What's Included */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="border border-border rounded-xl p-6 space-y-4">
+              <h3 className="font-display text-lg font-semibold">What's Included</h3>
+              <div className="flex flex-wrap gap-2">
+                {event.inclusions.map((item, i) => (
+                  <Badge key={i} variant="secondary" className="font-body text-xs gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-primary" /> {item}
+                  </Badge>
+                ))}
+              </div>
+              {event.extraFees && event.extraFees.length > 0 && (
+                <>
+                  <Separator />
+                  <div>
+                    <h4 className="font-body text-sm font-semibold mb-2 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4 text-gold" /> Extra Fees
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {event.extraFees.map((fee, i) => (
+                        <li key={i} className="text-sm text-muted-foreground font-body flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-gold flex-shrink-0" />
+                          {fee}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+            </motion.div>
+
+            {/* Amenities */}
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={4} className="border border-border rounded-xl p-6 space-y-4">
+              <h3 className="font-display text-lg font-semibold">Amenities & Facilities</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {event.amenities.map((a, i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 + i * 0.05 }}
+                    className="flex items-center gap-2 text-sm font-body p-2 rounded-lg bg-muted/50"
+                  >
+                    <CheckCircle2 className="h-4 w-4 text-primary flex-shrink-0" />
+                    {a}
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
 
             {/* Rating section */}
-            <div className="border border-border rounded-xl p-6">
+            <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5} className="border border-border rounded-xl p-6">
               <h3 className="font-display text-lg font-semibold mb-4">Rate This Event</h3>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <button
+                    <motion.button
                       key={star}
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.9 }}
                       disabled={hasRated}
                       onMouseEnter={() => !hasRated && setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(0)}
                       onClick={() => handleRate(star)}
-                      className="transition-transform hover:scale-110 disabled:cursor-default"
+                      className="transition-transform disabled:cursor-default"
                     >
                       <Star
                         className={`h-7 w-7 ${
@@ -167,7 +315,7 @@ const EventDetail = () => {
                             : "text-muted-foreground/30"
                         }`}
                       />
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
                 <div className="font-body">
@@ -176,14 +324,21 @@ const EventDetail = () => {
                 </div>
               </div>
               {hasRated && (
-                <p className="text-sm text-primary font-body mt-2">Thank you for your rating!</p>
+                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-primary font-body mt-2">
+                  Thank you for your rating!
+                </motion.p>
               )}
-            </div>
+            </motion.div>
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="space-y-6"
+          >
+            <div className="rounded-xl border border-border bg-card p-6 space-y-5 sticky top-20">
               {/* Like */}
               <div className="flex items-center justify-between">
                 <Button
@@ -207,7 +362,10 @@ const EventDetail = () => {
               </div>
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                <p className="font-body text-sm font-medium">{event.location}</p>
+                <div className="font-body">
+                  <p className="text-sm font-medium">{event.location}</p>
+                  <p className="text-xs text-muted-foreground">{event.city}, {event.region}</p>
+                </div>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -224,21 +382,11 @@ const EventDetail = () => {
               <div className="border-t border-border pt-5 space-y-4">
                 <h3 className="font-display text-sm font-semibold">Book Tickets</h3>
                 <div className="flex items-center gap-3">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  >
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                     <Minus className="h-3 w-3" />
                   </Button>
                   <span className="font-body font-semibold text-lg w-8 text-center">{quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => setQuantity(Math.min(spotsLeft, quantity + 1))}
-                  >
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.min(spotsLeft, quantity + 1))}>
                     <Plus className="h-3 w-3" />
                   </Button>
                   <span className="text-sm text-muted-foreground font-body ml-auto">
@@ -251,6 +399,38 @@ const EventDetail = () => {
                 </Button>
               </div>
 
+              <Separator />
+
+              {/* Agent Info */}
+              {event.agentName && (
+                <div className="space-y-3">
+                  <h3 className="font-display text-sm font-semibold">Listed By</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="font-body">
+                      <p className="text-sm font-medium">{event.agentName}</p>
+                      {event.agentPhone && (
+                        <a href={`tel:${event.agentPhone}`} className="text-xs text-primary flex items-center gap-1 hover:underline">
+                          <Phone className="h-3 w-3" /> {event.agentPhone}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  {event.agentWebsite && (
+                    <a
+                      href={event.agentWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs text-primary hover:underline font-body"
+                    >
+                      <Globe className="h-3 w-3" /> Visit Website
+                    </a>
+                  )}
+                </div>
+              )}
+
               <Button
                 variant="outline"
                 className="w-full font-body text-destructive hover:bg-destructive/10"
@@ -259,7 +439,7 @@ const EventDetail = () => {
                 <Trash2 className="h-4 w-4 mr-2" /> Delete Event
               </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
