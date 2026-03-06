@@ -31,6 +31,7 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/create-event" element={<CreateEvent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

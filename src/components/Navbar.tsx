@@ -57,7 +57,9 @@ const Navbar = () => {
                 <User className="h-3.5 w-3.5" />
                 {user.user_metadata?.full_name || user.email}
               </span>
-              <CreateEventDialog />
+              <Button size="sm" onClick={() => navigate("/create-event")} className="font-body gap-1.5 text-xs">
+                <Plus className="h-4 w-4" /> Create Event
+              </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="font-body gap-1.5 text-xs">
                 <LogOut className="h-4 w-4" /> Sign Out
               </Button>
