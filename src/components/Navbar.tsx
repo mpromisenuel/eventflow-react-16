@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Menu, LogIn, LogOut, User } from "lucide-react";
-import CreateEventDialog from "./CreateEventDialog";
+import { CalendarDays, Menu, LogIn, LogOut, User, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
