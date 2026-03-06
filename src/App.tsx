@@ -11,6 +11,7 @@ import Events from "./pages/Events";
 import Contact from "./pages/Contact";
 import EventDetail from "./pages/EventDetail";
 import Auth from "./pages/Auth";
+import CreateEvent from "./pages/CreateEvent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
