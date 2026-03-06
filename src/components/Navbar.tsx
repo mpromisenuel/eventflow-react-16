@@ -1,9 +1,10 @@
-import { Link, useLocation } from "react-router-dom";
-import { CalendarDays, Menu } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { CalendarDays, Menu, LogIn, LogOut, User } from "lucide-react";
 import CreateEventDialog from "./CreateEventDialog";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -14,6 +15,13 @@ const navLinks = [
 
 const Navbar = () => {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="sticky top-0 z-50 glass">
@@ -44,7 +52,22 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <CreateEventDialog />
+          {user ? (
+            <>
+              <span className="hidden sm:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
+                <User className="h-3.5 w-3.5" />
+                {user.user_metadata?.full_name || user.email}
+              </span>
+              <CreateEventDialog />
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="font-body gap-1.5 text-xs">
+                <LogOut className="h-4 w-4" /> Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button size="sm" onClick={() => navigate("/auth")} className="font-body gap-1.5 text-xs">
+              <LogIn className="h-4 w-4" /> Sign In
+            </Button>
+          )}
           {/* Mobile menu */}
           <Sheet>
             <SheetTrigger asChild>
@@ -68,6 +91,15 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
+                {user ? (
+                  <button onClick={handleSignOut} className="text-sm text-destructive py-2 text-left">
+                    Sign Out
+                  </button>
+                ) : (
+                  <Link to="/auth" className="text-sm text-primary font-medium py-2">
+                    Sign In / Sign Up
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
