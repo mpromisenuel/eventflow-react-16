@@ -8,7 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "About", to: "/about" },
-  { label: "Events", to: "/events" },
+  { label: "Venues", to: "/events" },
   { label: "Contact", to: "/contact" },
 ];
 
@@ -28,7 +28,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
           <span className="font-display text-xl font-bold text-foreground">
-            Eventful
+            Eventful Rentals
           </span>
         </Link>
 
@@ -58,7 +58,7 @@ const Navbar = () => {
                 {user.user_metadata?.full_name || user.email}
               </span>
               <Button size="sm" onClick={() => navigate("/create-event")} className="font-body gap-1.5 text-xs">
-                <Plus className="h-4 w-4" /> Create Event
+                <Plus className="h-4 w-4" /> List a Venue
               </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="font-body gap-1.5 text-xs">
                 <LogOut className="h-4 w-4" /> Sign Out

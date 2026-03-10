@@ -95,7 +95,7 @@ const EventCard = ({ event }: EventCardProps) => {
           <div className="flex flex-col gap-2 text-xs text-muted-foreground font-body">
             <div className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5 text-primary" />
-              <span>{format(eventDate, "MMM d, yyyy · h:mm a")}</span>
+              <span>Available from {format(eventDate, "MMM d, yyyy")}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -104,9 +104,9 @@ const EventCard = ({ event }: EventCardProps) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Users className="h-3.5 w-3.5 text-primary" />
-                <span>{event.attendees} attending · {spotsLeft} spots left</span>
+                <span>Capacity: {event.maxAttendees} · {event.orders} bookings</span>
               </div>
-              <span className="font-semibold text-primary text-sm">${event.price}</span>
+              <span className="font-semibold text-primary text-sm">GHS {event.price}</span>
             </div>
           </div>
         </div>

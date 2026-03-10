@@ -84,7 +84,7 @@ const CreateEvent = () => {
     e.preventDefault();
 
     if (!user) {
-      toast({ title: "Please sign in", description: "You must be logged in to create an event.", variant: "destructive" });
+      toast({ title: "Please sign in", description: "You must be logged in to list a venue.", variant: "destructive" });
       navigate("/auth");
       return;
     }
@@ -127,7 +127,7 @@ const CreateEvent = () => {
       lastUpdated: new Date().toISOString().split("T")[0],
     });
 
-    toast({ title: "Event created!", description: "Your event is now live." });
+    toast({ title: "Venue listed!", description: "Your venue is now live on the marketplace." });
     navigate("/events");
   };
 
@@ -138,10 +138,10 @@ const CreateEvent = () => {
       <div className="container mx-auto px-4 py-10 max-w-4xl">
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Create a New Event
+            List a Venue for Rent
           </h1>
           <p className="text-muted-foreground font-body text-sm mb-10">
-            Fill in the details below to list your event. All fields marked with * are required.
+            Fill in the details below to advertise your event space. All fields marked with * are required.
           </p>
         </motion.div>
 
@@ -149,29 +149,29 @@ const CreateEvent = () => {
           {/* Section: Basic Info */}
           <motion.section variants={fadeUp} initial="hidden" animate="visible" custom={1} className="space-y-5">
             <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 border-b border-border pb-2">
-              <CalendarDays className="h-5 w-5 text-primary" /> Event Details
+              <CalendarDays className="h-5 w-5 text-primary" /> Venue Details
             </h2>
             <div>
-              <Label htmlFor="title">Event Title *</Label>
-              <Input id="title" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Give your event a memorable name" required />
+              <Label htmlFor="title">Venue / Listing Title *</Label>
+              <Input id="title" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Give your venue a memorable name" required />
             </div>
             <div>
               <Label htmlFor="description">Description *</Label>
-              <Textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the venue, what's included, the vibe, amenities, and anything attendees should know..." rows={5} required />
+              <Textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the venue — what's included, the vibe, amenities, capacity, and anything renters should know..." rows={5} required />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="date">Date *</Label>
+                <Label htmlFor="date">Available From *</Label>
                 <Input id="date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} required />
               </div>
               <div>
-                <Label htmlFor="time">Time *</Label>
+                <Label htmlFor="time">Opening Time *</Label>
                 <Input id="time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} required />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <Label>Category *</Label>
+                <Label>Best Suited For *</Label>
                 <Select value={form.category} onValueChange={(v) => set("category", v)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -193,7 +193,7 @@ const CreateEvent = () => {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="max">Max Attendees *</Label>
+                <Label htmlFor="max">Max Capacity *</Label>
                 <Input id="max" type="number" min={1} value={form.maxAttendees} onChange={(e) => set("maxAttendees", parseInt(e.target.value) || 1)} required />
               </div>
             </div>
@@ -236,11 +236,11 @@ const CreateEvent = () => {
           {/* Section: Pricing & Property */}
           <motion.section variants={fadeUp} initial="hidden" animate="visible" custom={3} className="space-y-5">
             <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 border-b border-border pb-2">
-              <DollarSign className="h-5 w-5 text-primary" /> Pricing & Property
+              <DollarSign className="h-5 w-5 text-primary" /> Rental Pricing
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="price">Price (GHS) *</Label>
+                <Label htmlFor="price">Rental Price (GHS) *</Label>
                 <Input id="price" type="number" min={0} value={form.price} onChange={(e) => set("price", parseInt(e.target.value) || 0)} required />
               </div>
               <div>
@@ -253,10 +253,10 @@ const CreateEvent = () => {
             </div>
           </motion.section>
 
-          {/* Section: Agent / Organizer */}
+          {/* Section: Agent / Owner */}
           <motion.section variants={fadeUp} initial="hidden" animate="visible" custom={4} className="space-y-5">
             <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 border-b border-border pb-2">
-              <User className="h-5 w-5 text-primary" /> Agent / Organizer
+              <User className="h-5 w-5 text-primary" /> Owner / Agent
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
@@ -283,7 +283,7 @@ const CreateEvent = () => {
           {/* Section: Images */}
           <motion.section variants={fadeUp} initial="hidden" animate="visible" custom={5} className="space-y-5">
             <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2 border-b border-border pb-2">
-              <ImagePlus className="h-5 w-5 text-primary" /> Event Images
+              <ImagePlus className="h-5 w-5 text-primary" /> Venue Images
             </h2>
             <p className="text-xs text-muted-foreground">Add up to 6 image URLs. Leave blank to use a default image based on category.</p>
             <div className="space-y-3">
@@ -308,7 +308,6 @@ const CreateEvent = () => {
                 </Button>
               )}
             </div>
-            {/* Preview */}
             {imageUrls.some((u) => u.trim()) && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {imageUrls.filter((u) => u.trim()).map((u, i) => (
@@ -328,7 +327,7 @@ const CreateEvent = () => {
               <Input id="amenities" value={form.amenities} onChange={(e) => set("amenities", e.target.value)} placeholder="Parking, Power Supply, Water, Security, Restrooms, Stage Area" />
             </div>
             <div>
-              <Label htmlFor="inclusions">What's Included (comma separated)</Label>
+              <Label htmlFor="inclusions">What's Included in Rental (comma separated)</Label>
               <Input id="inclusions" value={form.inclusions} onChange={(e) => set("inclusions", e.target.value)} placeholder="Grounds only, Basic lighting" />
             </div>
             <div>
@@ -340,7 +339,7 @@ const CreateEvent = () => {
           {/* Submit */}
           <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={7} className="flex gap-4 pt-4">
             <Button type="submit" size="lg" className="font-body gap-2 flex-1 sm:flex-none">
-              <Plus className="h-4 w-4" /> Create Event
+              <Plus className="h-4 w-4" /> List Venue
             </Button>
             <Button type="button" variant="outline" size="lg" onClick={() => navigate(-1)} className="font-body">
               Cancel
