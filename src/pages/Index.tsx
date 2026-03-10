@@ -17,15 +17,15 @@ const categories: (EventCategory | "all")[] = [
 ];
 
 const features = [
-  { icon: LayoutGrid, title: "Customisable Plans for Any Event Size", description: "From intimate gatherings to large-scale conferences" },
-  { icon: Shield, title: "Seamless RSVP & Attendee Management", description: "Track registrations and manage capacity effortlessly" },
-  { icon: Sparkles, title: "Premium Venues & Beautiful Spaces", description: "Halls, beaches, spacious grounds & more" },
-  { icon: Zap, title: "Smart Scheduling & Intelligent Reminders", description: "Never miss an event with automated notifications" },
+  { icon: LayoutGrid, title: "Venues for Every Occasion", description: "From intimate gatherings to large-scale celebrations — find the perfect space" },
+  { icon: Shield, title: "Verified Listings & Trusted Agents", description: "Every venue is reviewed so you can book with confidence" },
+  { icon: Sparkles, title: "Halls, Beaches, Gardens & More", description: "Browse a wide range of venue types across Ghana" },
+  { icon: Zap, title: "Instant Enquiries & Quick Booking", description: "Connect with venue owners and secure your date in minutes" },
 ];
 
 const stats = [
-  { value: "120+", label: "Events Hosted" },
-  { value: "3.5K", label: "Happy Attendees" },
+  { value: "120+", label: "Venues Listed" },
+  { value: "3.5K", label: "Happy Renters" },
 ];
 
 const fadeUp = {
@@ -64,17 +64,17 @@ const Index = () => {
           className="bg-primary flex flex-col justify-center px-8 md:px-16 py-16 lg:py-24 relative"
         >
           <h1 className="font-display text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground leading-tight">
-            Modern &amp;<br />Effortless Event<br />Planning
+            Find &amp; Rent<br />The Perfect Event<br />Venue
           </h1>
           <p className="text-primary-foreground/80 font-body mt-6 max-w-md text-base leading-relaxed">
-            Create, discover, and attend extraordinary events with just one click. From intimate workshops to grand celebrations — welcome to more flexibility, choice, and freedom.
+            Discover stunning event spaces across Ghana — halls, beaches, gardens, rooftops and spacious grounds. List your venue or find the ideal rental for your next occasion.
           </p>
           <div className="flex items-center gap-6 mt-8">
             <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2 font-body">
               <Clock className="h-4 w-4" /> How it works
             </Button>
             <button className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors font-body text-sm group">
-              Explore
+              Browse Venues
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
@@ -94,14 +94,14 @@ const Index = () => {
           transition={{ duration: 0.8 }}
           className="hidden lg:block relative overflow-hidden"
         >
-          <img src={heroBg} alt="Event space" className="h-full w-full object-cover" />
+          <img src={heroBg} alt="Event venue space" className="h-full w-full object-cover" />
         </motion.div>
       </section>
 
       {/* Features */}
       <section className="container mx-auto px-4 py-16 md:py-20">
         <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="font-display text-2xl md:text-3xl font-semibold text-center mb-12">
-          All Event Features Included
+          Why Rent With Eventful
         </motion.h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f, i) => (
@@ -125,18 +125,18 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Filters */}
+      {/* Listings */}
       <section className="bg-muted/50">
         <div className="container mx-auto px-4 py-16 md:py-20">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
             <div>
-              <h2 className="font-display text-2xl md:text-3xl font-semibold">Upcoming Events</h2>
-              <p className="text-sm text-muted-foreground font-body mt-1">{filtered.length} event{filtered.length !== 1 ? "s" : ""} found</p>
+              <h2 className="font-display text-2xl md:text-3xl font-semibold">Available Venues</h2>
+              <p className="text-sm text-muted-foreground font-body mt-1">{filtered.length} venue{filtered.length !== 1 ? "s" : ""} found</p>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
               <div className="relative flex-1 md:w-64">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Search events or locations..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 font-body" />
+                <Input placeholder="Search venues or locations..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 font-body" />
               </div>
               <div className="flex gap-2 flex-wrap">
                 {categories.map((cat) => (
@@ -165,7 +165,7 @@ const Index = () => {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <p className="text-muted-foreground font-body">No events found. Try adjusting your filters.</p>
+              <p className="text-muted-foreground font-body">No venues found. Try adjusting your filters.</p>
             </div>
           )}
         </div>
@@ -185,14 +185,14 @@ const Index = () => {
           </div>
           <div className="bg-primary flex flex-col justify-center p-8 md:p-12">
             <h2 className="font-display text-2xl md:text-3xl font-semibold text-primary-foreground leading-snug">
-              Looking Forward To The<br />Best Event For Your Team?
+              Have a Venue?<br />List It &amp; Start Earning
             </h2>
             <p className="text-primary-foreground/70 font-body mt-4 text-sm max-w-sm">
-              Start planning your next unforgettable event today. Our platform makes it simple to create, manage, and grow.
+              Reach thousands of event organisers looking for the perfect space. Listing your venue is quick and free.
             </p>
             <div className="mt-6">
-              <Button variant="secondary" className="font-body gap-2">
-                Get Started <ArrowRight className="h-4 w-4" />
+              <Button variant="secondary" className="font-body gap-2" asChild>
+                <Link to="/create-event">List Your Venue <ArrowRight className="h-4 w-4" /></Link>
               </Button>
             </div>
           </div>
@@ -205,15 +205,15 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
-              <span className="font-display text-lg font-bold">Eventful</span>
+              <span className="font-display text-lg font-bold">Eventful Rentals</span>
             </div>
             <div className="flex gap-8 text-sm font-body opacity-70">
               <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
               <Link to="/about" className="hover:opacity-100 transition-opacity">About</Link>
-              <Link to="/events" className="hover:opacity-100 transition-opacity">Events</Link>
+              <Link to="/events" className="hover:opacity-100 transition-opacity">Venues</Link>
               <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
-            <p className="text-xs font-body opacity-50">© 2026 Eventful. All rights reserved.</p>
+            <p className="text-xs font-body opacity-50">© 2026 Eventful Rentals. All rights reserved.</p>
           </div>
         </div>
       </footer>

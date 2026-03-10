@@ -43,8 +43,8 @@ const EventDetail = () => {
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h2 className="font-display text-2xl">Event not found</h2>
-          <Link to="/" className="text-primary mt-4 inline-block font-body">← Back to events</Link>
+          <h2 className="font-display text-2xl">Venue not found</h2>
+          <Link to="/" className="text-primary mt-4 inline-block font-body">← Back to venues</Link>
         </div>
       </div>
     );
@@ -52,7 +52,7 @@ const EventDetail = () => {
 
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
-  const fillPercent = Math.round((event.attendees / event.maxAttendees) * 100);
+  const fillPercent = Math.round((event.orders / event.maxAttendees) * 100);
   const spotsLeft = event.maxAttendees - event.attendees;
 
   const handleDelete = () => {
@@ -65,16 +65,16 @@ const EventDetail = () => {
     setUserRating(rating);
     rateEvent(event.id, rating);
     setHasRated(true);
-    toast({ title: "Thanks for rating!", description: `You gave this event ${rating} stars.` });
+    toast({ title: "Thanks for rating!", description: `You gave this venue ${rating} stars.` });
   };
 
   const handleOrder = () => {
     if (quantity > spotsLeft) {
-      toast({ title: "Not enough spots", description: `Only ${spotsLeft} spots remaining.`, variant: "destructive" });
+      toast({ title: "Not enough availability", description: `Only ${spotsLeft} slots remaining.`, variant: "destructive" });
       return;
     }
     orderEvent(event.id, quantity);
-    toast({ title: "Order placed!", description: `You've booked ${quantity} ticket${quantity > 1 ? "s" : ""} for $${quantity * event.price}.` });
+    toast({ title: "Booking confirmed!", description: `You've booked ${quantity} slot${quantity > 1 ? "s" : ""} for GHS ${quantity * event.price}.` });
     setQuantity(1);
   };
 
@@ -170,10 +170,10 @@ const EventDetail = () => {
 
       <div className="container mx-auto px-4 py-10">
         <Link
-          to="/"
+          to="/events"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors font-body mb-8"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to events
+          <ArrowLeft className="h-4 w-4" /> Back to venues
         </Link>
 
         <div className="grid md:grid-cols-3 gap-10">
@@ -181,7 +181,7 @@ const EventDetail = () => {
           <div className="md:col-span-2 space-y-8">
             {/* About */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
-              <h2 className="font-display text-xl font-semibold mb-3">About this event</h2>
+              <h2 className="font-display text-xl font-semibold mb-3">About this venue</h2>
               <p className="text-muted-foreground font-body leading-relaxed">{event.description}</p>
             </motion.div>
 
@@ -292,7 +292,7 @@ const EventDetail = () => {
 
             {/* Rating section */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5} className="border border-border rounded-xl p-6">
-              <h3 className="font-display text-lg font-semibold mb-4">Rate This Event</h3>
+              <h3 className="font-display text-lg font-semibold mb-4">Rate This Venue</h3>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -350,14 +350,14 @@ const EventDetail = () => {
                   <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
                   {event.liked ? "Liked" : "Like"} ({event.likes})
                 </Button>
-                <span className="text-2xl font-display font-bold text-primary">${event.price}</span>
+                <span className="text-2xl font-display font-bold text-primary">GHS {event.price}</span>
               </div>
 
               <div className="flex items-start gap-3">
                 <CalendarDays className="h-5 w-5 text-primary mt-0.5" />
                 <div className="font-body">
-                  <p className="font-medium text-sm">{format(eventDate, "EEEE, MMMM d, yyyy")}</p>
-                  <p className="text-xs text-muted-foreground">{format(eventDate, "h:mm a")}</p>
+                  <p className="font-medium text-sm">Available from {format(eventDate, "EEEE, MMMM d, yyyy")}</p>
+                  <p className="text-xs text-muted-foreground">Rental period negotiable</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -371,16 +371,16 @@ const EventDetail = () => {
                 <div className="flex items-center gap-3">
                   <Users className="h-5 w-5 text-primary" />
                   <p className="font-body text-sm">
-                    <span className="font-medium">{event.attendees}</span> / {event.maxAttendees} attending
+                    Capacity: <span className="font-medium">{event.maxAttendees}</span> · {event.orders} bookings
                   </p>
                 </div>
                 <Progress value={fillPercent} className="h-2" />
-                <p className="text-xs text-muted-foreground font-body">{spotsLeft} spots remaining</p>
+                <p className="text-xs text-muted-foreground font-body">{spotsLeft > 0 ? `${spotsLeft} slots available` : "Fully booked"}</p>
               </div>
 
-              {/* Order section */}
+              {/* Booking section */}
               <div className="border-t border-border pt-5 space-y-4">
-                <h3 className="font-display text-sm font-semibold">Book Tickets</h3>
+                <h3 className="font-display text-sm font-semibold">Book This Venue</h3>
                 <div className="flex items-center gap-3">
                   <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
                     <Minus className="h-3 w-3" />
@@ -390,12 +390,12 @@ const EventDetail = () => {
                     <Plus className="h-3 w-3" />
                   </Button>
                   <span className="text-sm text-muted-foreground font-body ml-auto">
-                    Total: <span className="font-semibold text-foreground">${quantity * event.price}</span>
+                    Total: <span className="font-semibold text-foreground">GHS {quantity * event.price}</span>
                   </span>
                 </div>
                 <Button className="w-full font-body gap-2" onClick={handleOrder} disabled={spotsLeft === 0}>
                   <ShoppingCart className="h-4 w-4" />
-                  {spotsLeft === 0 ? "Sold Out" : "Place Order"}
+                  {spotsLeft === 0 ? "Fully Booked" : "Book Now"}
                 </Button>
               </div>
 
@@ -436,7 +436,7 @@ const EventDetail = () => {
                 className="w-full font-body text-destructive hover:bg-destructive/10"
                 onClick={handleDelete}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Delete Event
+                <Trash2 className="h-4 w-4 mr-2" /> Remove Listing
               </Button>
             </div>
           </motion.div>

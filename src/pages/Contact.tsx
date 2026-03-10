@@ -33,7 +33,7 @@ const Contact = () => {
             Get in Touch
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-primary-foreground/80 font-body mt-3 max-w-lg mx-auto text-sm">
-            Have a question or want to plan an event? We'd love to hear from you.
+            Have a question about listing or renting a venue? We'd love to hear from you.
           </motion.p>
         </div>
       </motion.section>
@@ -44,7 +44,7 @@ const Contact = () => {
             <h2 className="font-display text-2xl font-semibold mb-6">Contact Information</h2>
             <div className="space-y-6">
               {[
-                { icon: Mail, label: "Email", value: "hello@eventful.com" },
+                { icon: Mail, label: "Email", value: "hello@eventfulrentals.com" },
                 { icon: Phone, label: "Phone", value: "+233 241 761 723" },
                 { icon: MapPin, label: "Office", value: "East Legon Bawaleshie\nGreater Accra, Ghana" },
               ].map((item, i) => (
@@ -97,14 +97,14 @@ const Contact = () => {
       <footer className="border-t border-border bg-foreground text-background">
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">Eventful</span></div>
+            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">Eventful Rentals</span></div>
             <div className="flex gap-8 text-sm font-body opacity-70">
               <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
               <Link to="/about" className="hover:opacity-100 transition-opacity">About</Link>
-              <Link to="/events" className="hover:opacity-100 transition-opacity">Events</Link>
+              <Link to="/events" className="hover:opacity-100 transition-opacity">Venues</Link>
               <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
-            <p className="text-xs font-body opacity-50">© 2026 Eventful. All rights reserved.</p>
+            <p className="text-xs font-body opacity-50">© 2026 Eventful Rentals. All rights reserved.</p>
           </div>
         </div>
       </footer>
