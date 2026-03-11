@@ -6,12 +6,11 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star,
-  ShoppingCart, ChevronLeft, ChevronRight, Minus, Plus,
+  ChevronLeft, ChevronRight,
   Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
@@ -27,7 +26,7 @@ const fadeUp = {
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { getEvent, deleteEvent, toggleLike, rateEvent, orderEvent } = useEvents();
+  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue } = useEvents();
   const navigate = useNavigate();
   const { toast } = useToast();
   const event = getEvent(id || "");
@@ -35,7 +34,6 @@ const EventDetail = () => {
   const [currentImage, setCurrentImage] = useState(0);
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
-  const [quantity, setQuantity] = useState(1);
   const [hasRated, setHasRated] = useState(false);
 
   if (!event) {
@@ -52,8 +50,7 @@ const EventDetail = () => {
 
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
-  const fillPercent = Math.round((event.orders / event.maxAttendees) * 100);
-  const spotsLeft = event.maxAttendees - event.attendees;
+  const isBooked = event.marketStatus !== "available";
 
   const handleDelete = () => {
     deleteEvent(event.id);
@@ -68,14 +65,13 @@ const EventDetail = () => {
     toast({ title: "Thanks for rating!", description: `You gave this venue ${rating} stars.` });
   };
 
-  const handleOrder = () => {
-    if (quantity > spotsLeft) {
-      toast({ title: "Not enough availability", description: `Only ${spotsLeft} slots remaining.`, variant: "destructive" });
-      return;
+  const handleBook = () => {
+    const success = bookVenue(event.id);
+    if (success) {
+      toast({ title: "Venue booked!", description: `You've booked "${event.title}" for GHS ${event.price.toLocaleString()}. The venue is now reserved.` });
+    } else {
+      toast({ title: "Venue unavailable", description: "This venue has already been booked.", variant: "destructive" });
     }
-    orderEvent(event.id, quantity);
-    toast({ title: "Booking confirmed!", description: `You've booked ${quantity} slot${quantity > 1 ? "s" : ""} for GHS ${quantity * event.price}.` });
-    setQuantity(1);
   };
 
   return (
@@ -142,7 +138,7 @@ const EventDetail = () => {
                   : "bg-destructive/20 text-primary-foreground border-destructive/30"
               }`}
             >
-              {event.marketStatus === "available" ? "Available" : event.marketStatus === "booked" ? "Booked" : "Sold Out"}
+              {event.marketStatus === "available" ? "Available" : "Booked"}
             </Badge>
           </div>
           <h1 className="font-display text-3xl md:text-5xl font-bold text-primary-foreground max-w-3xl">
@@ -209,9 +205,16 @@ const EventDetail = () => {
                   <span className="font-medium">{venueTypeLabels[event.venueType]}</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="text-muted-foreground">Capacity:</span>
+                  <span className="font-medium">{event.maxAttendees} guests</span>
+                </div>
+                <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" />
                   <span className="text-muted-foreground">Status:</span>
-                  <span className="font-medium capitalize">{event.marketStatus}</span>
+                  <span className={`font-medium capitalize ${isBooked ? "text-destructive" : "text-primary"}`}>
+                    {event.marketStatus}
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -350,7 +353,13 @@ const EventDetail = () => {
                   <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
                   {event.liked ? "Liked" : "Like"} ({event.likes})
                 </Button>
-                <span className="text-2xl font-display font-bold text-primary">GHS {event.price}</span>
+              </div>
+
+              {/* Price */}
+              <div className="bg-muted/50 rounded-lg p-4 text-center">
+                <p className="text-xs text-muted-foreground font-body mb-1">Venue Rental Price</p>
+                <span className="text-3xl font-display font-bold text-primary">GHS {event.price.toLocaleString()}</span>
+                <p className="text-xs text-muted-foreground font-body mt-1">for the entire venue</p>
               </div>
 
               <div className="flex items-start gap-3">
@@ -367,36 +376,37 @@ const EventDetail = () => {
                   <p className="text-xs text-muted-foreground">{event.city}, {event.region}</p>
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
-                  <Users className="h-5 w-5 text-primary" />
-                  <p className="font-body text-sm">
-                    Capacity: <span className="font-medium">{event.maxAttendees}</span> · {event.orders} bookings
-                  </p>
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 text-primary mt-0.5" />
+                <div className="font-body">
+                  <p className="text-sm font-medium">Capacity: {event.maxAttendees} guests</p>
+                  <p className="text-xs text-muted-foreground">Entire venue rental</p>
                 </div>
-                <Progress value={fillPercent} className="h-2" />
-                <p className="text-xs text-muted-foreground font-body">{spotsLeft > 0 ? `${spotsLeft} slots available` : "Fully booked"}</p>
               </div>
 
               {/* Booking section */}
               <div className="border-t border-border pt-5 space-y-4">
                 <h3 className="font-display text-sm font-semibold">Book This Venue</h3>
-                <div className="flex items-center gap-3">
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
-                    <Minus className="h-3 w-3" />
-                  </Button>
-                  <span className="font-body font-semibold text-lg w-8 text-center">{quantity}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQuantity(Math.min(spotsLeft, quantity + 1))}>
-                    <Plus className="h-3 w-3" />
-                  </Button>
-                  <span className="text-sm text-muted-foreground font-body ml-auto">
-                    Total: <span className="font-semibold text-foreground">GHS {quantity * event.price}</span>
-                  </span>
-                </div>
-                <Button className="w-full font-body gap-2" onClick={handleOrder} disabled={spotsLeft === 0}>
-                  <ShoppingCart className="h-4 w-4" />
-                  {spotsLeft === 0 ? "Fully Booked" : "Book Now"}
-                </Button>
+                {isBooked ? (
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
+                    <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+                    <p className="font-body text-sm font-semibold text-destructive">This venue has been booked</p>
+                    <p className="font-body text-xs text-muted-foreground mt-1">Contact the agent for future availability</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-muted/30 rounded-lg p-3 text-sm font-body">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Venue rental</span>
+                        <span className="font-semibold">GHS {event.price.toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <Button className="w-full font-body gap-2" onClick={handleBook}>
+                      <CheckCircle2 className="h-4 w-4" />
+                      Book Entire Venue — GHS {event.price.toLocaleString()}
+                    </Button>
+                  </>
+                )}
               </div>
 
               <Separator />
