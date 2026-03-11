@@ -101,13 +101,16 @@ const EventCard = ({ event }: EventCardProps) => {
               <MapPin className="h-3.5 w-3.5 text-primary" />
               <span className="truncate">{event.location}</span>
             </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                <span>Capacity: {event.maxAttendees} · {event.orders} bookings</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-primary" />
+                  <span>Capacity: {event.maxAttendees} guests</span>
+                </div>
+                <span className="font-semibold text-primary text-sm">GHS {event.price.toLocaleString()}</span>
               </div>
-              <span className="font-semibold text-primary text-sm">GHS {event.price}</span>
-            </div>
+              {event.marketStatus !== "available" && (
+                <Badge variant="destructive" className="font-body text-xs w-fit">Booked</Badge>
+              )}
           </div>
         </div>
       </div>

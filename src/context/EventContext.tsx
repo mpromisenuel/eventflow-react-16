@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-// Event context provider for global event state management
 import { Event } from "@/lib/types";
 import { sampleEvents } from "@/lib/sample-events";
 
@@ -10,7 +9,7 @@ interface EventContextType {
   getEvent: (id: string) => Event | undefined;
   toggleLike: (id: string) => void;
   rateEvent: (id: string, rating: number) => void;
-  orderEvent: (id: string, quantity: number) => void;
+  bookVenue: (id: string) => boolean;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
@@ -53,18 +52,21 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }, []);
 
-  const orderEvent = useCallback((id: string, quantity: number) => {
+  const bookVenue = useCallback((id: string): boolean => {
+    const event = events.find((e) => e.id === id);
+    if (!event || event.marketStatus !== "available") return false;
     setEvents((prev) =>
       prev.map((e) =>
         e.id === id
-          ? { ...e, orders: e.orders + quantity, attendees: Math.min(e.attendees + quantity, e.maxAttendees) }
+          ? { ...e, marketStatus: "booked" as const, orders: 1 }
           : e
       )
     );
-  }, []);
+    return true;
+  }, [events]);
 
   return (
-    <EventContext.Provider value={{ events, addEvent, deleteEvent, getEvent, toggleLike, rateEvent, orderEvent }}>
+    <EventContext.Provider value={{ events, addEvent, deleteEvent, getEvent, toggleLike, rateEvent, bookVenue }}>
       {children}
     </EventContext.Provider>
   );
