@@ -14,7 +14,137 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booked_at: string
+          id: string
+          user_id: string
+          venue_id: string
+        }
+        Insert: {
+          booked_at?: string
+          id?: string
+          user_id: string
+          venue_id: string
+        }
+        Update: {
+          booked_at?: string
+          id?: string
+          user_id?: string
+          venue_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: true
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      venues: {
+        Row: {
+          address: string
+          agent_name: string | null
+          agent_phone: string | null
+          agent_website: string | null
+          amenities: string[]
+          category: Database["public"]["Enums"]["event_category"]
+          city: string
+          created_at: string
+          date: string
+          description: string
+          extra_fees: string[]
+          id: string
+          image: string
+          images: string[]
+          inclusions: string[]
+          likes: number
+          location: string
+          map_url: string | null
+          market_status: Database["public"]["Enums"]["market_status"]
+          max_attendees: number
+          price: number
+          property_ref: string | null
+          rating: number
+          rating_count: number
+          region: string
+          status: string
+          time: string
+          title: string
+          updated_at: string
+          user_id: string
+          venue_type: Database["public"]["Enums"]["venue_type"]
+        }
+        Insert: {
+          address?: string
+          agent_name?: string | null
+          agent_phone?: string | null
+          agent_website?: string | null
+          amenities?: string[]
+          category?: Database["public"]["Enums"]["event_category"]
+          city?: string
+          created_at?: string
+          date?: string
+          description?: string
+          extra_fees?: string[]
+          id?: string
+          image?: string
+          images?: string[]
+          inclusions?: string[]
+          likes?: number
+          location?: string
+          map_url?: string | null
+          market_status?: Database["public"]["Enums"]["market_status"]
+          max_attendees?: number
+          price?: number
+          property_ref?: string | null
+          rating?: number
+          rating_count?: number
+          region?: string
+          status?: string
+          time?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          venue_type?: Database["public"]["Enums"]["venue_type"]
+        }
+        Update: {
+          address?: string
+          agent_name?: string | null
+          agent_phone?: string | null
+          agent_website?: string | null
+          amenities?: string[]
+          category?: Database["public"]["Enums"]["event_category"]
+          city?: string
+          created_at?: string
+          date?: string
+          description?: string
+          extra_fees?: string[]
+          id?: string
+          image?: string
+          images?: string[]
+          inclusions?: string[]
+          likes?: number
+          location?: string
+          map_url?: string | null
+          market_status?: Database["public"]["Enums"]["market_status"]
+          max_attendees?: number
+          price?: number
+          property_ref?: string | null
+          rating?: number
+          rating_count?: number
+          region?: string
+          status?: string
+          time?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          venue_type?: Database["public"]["Enums"]["venue_type"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +153,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      event_category:
+        | "conference"
+        | "workshop"
+        | "social"
+        | "networking"
+        | "celebration"
+      market_status: "available" | "booked" | "sold-out"
+      venue_type:
+        | "hall"
+        | "beach"
+        | "grounds"
+        | "rooftop"
+        | "garden"
+        | "ballroom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +293,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      event_category: [
+        "conference",
+        "workshop",
+        "social",
+        "networking",
+        "celebration",
+      ],
+      market_status: ["available", "booked", "sold-out"],
+      venue_type: ["hall", "beach", "grounds", "rooftop", "garden", "ballroom"],
+    },
   },
 } as const
