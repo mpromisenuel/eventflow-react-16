@@ -52,8 +52,8 @@ const EventDetail = () => {
   const eventDate = new Date(event.date + "T" + event.time);
   const isBooked = event.marketStatus !== "available";
 
-  const handleDelete = () => {
-    deleteEvent(event.id);
+  const handleDelete = async () => {
+    await deleteEvent(event.id);
     navigate("/");
   };
 
