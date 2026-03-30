@@ -52,8 +52,8 @@ const EventDetail = () => {
   const eventDate = new Date(event.date + "T" + event.time);
   const isBooked = event.marketStatus !== "available";
 
-  const handleDelete = () => {
-    deleteEvent(event.id);
+  const handleDelete = async () => {
+    await deleteEvent(event.id);
     navigate("/");
   };
 
@@ -65,12 +65,12 @@ const EventDetail = () => {
     toast({ title: "Thanks for rating!", description: `You gave this venue ${rating} stars.` });
   };
 
-  const handleBook = () => {
-    const success = bookVenue(event.id);
+  const handleBook = async () => {
+    const success = await bookVenue(event.id);
     if (success) {
       toast({ title: "Venue booked!", description: `You've booked "${event.title}" for GHS ${event.price.toLocaleString()}. The venue is now reserved.` });
     } else {
-      toast({ title: "Venue unavailable", description: "This venue has already been booked.", variant: "destructive" });
+      toast({ title: "Venue unavailable", description: "This venue has already been booked or you need to sign in.", variant: "destructive" });
     }
   };
 

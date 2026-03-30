@@ -1,28 +1,116 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { Event } from "@/lib/types";
-import { sampleEvents } from "@/lib/sample-events";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 
 interface EventContextType {
   events: Event[];
-  addEvent: (event: Omit<Event, "id">) => void;
-  deleteEvent: (id: string) => void;
+  loading: boolean;
+  addEvent: (event: Omit<Event, "id">) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
   toggleLike: (id: string) => void;
   rateEvent: (id: string, rating: number) => void;
-  bookVenue: (id: string) => boolean;
+  bookVenue: (id: string) => Promise<boolean>;
+  refetch: () => Promise<void>;
 }
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
-export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events, setEvents] = useState<Event[]>(sampleEvents);
+// Map DB row to frontend Event type
+function mapRow(row: any): Event {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    date: row.date,
+    time: row.time,
+    location: row.location,
+    category: row.category,
+    attendees: 0,
+    maxAttendees: row.max_attendees,
+    image: row.image,
+    images: row.images || [],
+    status: row.status as Event["status"],
+    likes: row.likes ?? 0,
+    liked: false,
+    rating: Number(row.rating) || 0,
+    ratingCount: row.rating_count ?? 0,
+    price: Number(row.price) || 0,
+    orders: row.market_status === "booked" ? 1 : 0,
+    venueType: row.venue_type,
+    propertyRef: row.property_ref ?? undefined,
+    agentName: row.agent_name ?? undefined,
+    agentPhone: row.agent_phone ?? undefined,
+    agentWebsite: row.agent_website ?? undefined,
+    amenities: row.amenities || [],
+    inclusions: row.inclusions || [],
+    extraFees: row.extra_fees || [],
+    address: row.address,
+    city: row.city,
+    region: row.region,
+    mapUrl: row.map_url ?? undefined,
+    marketStatus: row.market_status as Event["marketStatus"],
+    lastUpdated: row.updated_at?.split("T")[0] ?? new Date().toISOString().split("T")[0],
+  };
+}
 
-  const addEvent = useCallback((event: Omit<Event, "id">) => {
-    const newEvent: Event = { ...event, id: crypto.randomUUID() };
-    setEvents((prev) => [newEvent, ...prev]);
+export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const fetchVenues = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("venues")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      setEvents(data.map(mapRow));
+    }
+    setLoading(false);
   }, []);
 
-  const deleteEvent = useCallback((id: string) => {
+  useEffect(() => {
+    fetchVenues();
+  }, [fetchVenues]);
+
+  const addEvent = useCallback(async (event: Omit<Event, "id">) => {
+    if (!user) return;
+    const { error } = await supabase.from("venues").insert({
+      user_id: user.id,
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      time: event.time,
+      location: event.location,
+      category: event.category,
+      max_attendees: event.maxAttendees,
+      image: event.image,
+      images: event.images,
+      status: event.status,
+      price: event.price,
+      venue_type: event.venueType,
+      property_ref: event.propertyRef || null,
+      agent_name: event.agentName || null,
+      agent_phone: event.agentPhone || null,
+      agent_website: event.agentWebsite || null,
+      amenities: event.amenities,
+      inclusions: event.inclusions,
+      extra_fees: event.extraFees || [],
+      address: event.address,
+      city: event.city,
+      region: event.region,
+      map_url: event.mapUrl || null,
+      market_status: event.marketStatus,
+    });
+    if (!error) await fetchVenues();
+  }, [user, fetchVenues]);
+
+  const deleteEvent = useCallback(async (id: string) => {
+    await supabase.from("venues").delete().eq("id", id);
     setEvents((prev) => prev.filter((e) => e.id !== id));
   }, []);
 
@@ -52,21 +140,29 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   }, []);
 
-  const bookVenue = useCallback((id: string): boolean => {
+  const bookVenue = useCallback(async (id: string): Promise<boolean> => {
+    if (!user) return false;
     const event = events.find((e) => e.id === id);
     if (!event || event.marketStatus !== "available") return false;
+
+    const { error } = await supabase.from("bookings").insert({
+      venue_id: id,
+      user_id: user.id,
+    });
+
+    if (error) return false;
+
+    // The trigger updates market_status to 'booked', refresh locally
     setEvents((prev) =>
       prev.map((e) =>
-        e.id === id
-          ? { ...e, marketStatus: "booked" as const, orders: 1 }
-          : e
+        e.id === id ? { ...e, marketStatus: "booked" as const, orders: 1 } : e
       )
     );
     return true;
-  }, [events]);
+  }, [user, events]);
 
   return (
-    <EventContext.Provider value={{ events, addEvent, deleteEvent, getEvent, toggleLike, rateEvent, bookVenue }}>
+    <EventContext.Provider value={{ events, loading, addEvent, deleteEvent, getEvent, toggleLike, rateEvent, bookVenue, refetch: fetchVenues }}>
       {children}
     </EventContext.Provider>
   );

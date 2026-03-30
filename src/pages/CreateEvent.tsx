@@ -80,7 +80,7 @@ const CreateEvent = () => {
     setImageUrls(updated);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!user) {
@@ -93,7 +93,7 @@ const CreateEvent = () => {
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
 
-    addEvent({
+    await addEvent({
       title: form.title,
       description: form.description,
       date: form.date,
