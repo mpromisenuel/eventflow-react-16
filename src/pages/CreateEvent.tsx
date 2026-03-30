@@ -93,7 +93,7 @@ const CreateEvent = () => {
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
 
-    addEvent({
+    await addEvent({
       title: form.title,
       description: form.description,
       date: form.date,
