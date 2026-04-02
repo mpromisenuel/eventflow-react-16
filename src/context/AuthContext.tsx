@@ -1,10 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import React, { createContext, useContext, useState } from "react";
+
+interface LocalUser {
+  id: string;
+  email: string;
+  user_metadata?: { full_name?: string };
+}
 
 interface AuthContextType {
-  user: User | null;
-  session: Session | null;
+  user: LocalUser | null;
+  session: unknown;
   loading: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -14,49 +18,34 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<LocalUser | null>(null);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signUp = async (email: string, password: string, fullName: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, _password: string, fullName: string) => {
+    const newUser: LocalUser = {
+      id: crypto.randomUUID(),
       email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    return { error: error as Error | null };
+      user_metadata: { full_name: fullName },
+    };
+    setUser(newUser);
+    return { error: null };
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+  const signIn = async (email: string, _password: string) => {
+    const loggedIn: LocalUser = {
+      id: crypto.randomUUID(),
+      email,
+      user_metadata: { full_name: email.split("@")[0] },
+    };
+    setUser(loggedIn);
+    return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session: user, loading: false, signUp, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
