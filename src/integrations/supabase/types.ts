@@ -74,7 +74,7 @@ export type Database = {
           time: string
           title: string
           updated_at: string
-          user_id: string
+          user_id: string | null
           venue_type: Database["public"]["Enums"]["venue_type"]
         }
         Insert: {
@@ -107,7 +107,7 @@ export type Database = {
           time?: string
           title: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           venue_type?: Database["public"]["Enums"]["venue_type"]
         }
         Update: {
@@ -140,7 +140,7 @@ export type Database = {
           time?: string
           title?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           venue_type?: Database["public"]["Enums"]["venue_type"]
         }
         Relationships: []
