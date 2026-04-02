@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
 import { EventCategory, VenueType, categoryLabels, venueTypeLabels } from "@/lib/types";
-import { EventCategory, VenueType, categoryLabels, venueTypeLabels } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
