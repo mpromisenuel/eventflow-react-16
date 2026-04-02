@@ -44,7 +44,7 @@ const slideVariants = {
 const CreateEvent = () => {
   const navigate = useNavigate();
   const { addEvent } = useEvents();
-  const { user } = useAuth();
+  const { toast } = useToast();
   const { toast } = useToast();
 
   const [step, setStep] = useState(0);
