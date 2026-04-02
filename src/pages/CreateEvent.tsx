@@ -45,7 +45,6 @@ const CreateEvent = () => {
   const navigate = useNavigate();
   const { addEvent } = useEvents();
   const { toast } = useToast();
-  const { toast } = useToast();
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
