@@ -109,18 +109,12 @@ const CreateEvent = () => {
     setStep((s) => Math.max(s - 1, 0));
   };
 
-  const handleSubmit = async () => {
-    if (!user) {
-      toast({ title: "Please sign in", description: "You must be logged in to list a venue.", variant: "destructive" });
-      navigate("/auth");
-      return;
-    }
-
+  const handleSubmit = () => {
     const validImages = imageUrls.filter((url) => url.trim());
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
 
-    await addEvent({
+    addEvent({
       title: form.title,
       description: form.description,
       date: form.date,

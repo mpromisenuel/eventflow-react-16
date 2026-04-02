@@ -65,8 +65,8 @@ const EventDetail = () => {
     toast({ title: "Thanks for rating!", description: `You gave this venue ${rating} stars.` });
   };
 
-  const handleBook = async () => {
-    const success = await bookVenue(event.id);
+  const handleBook = () => {
+    const success = bookVenue(event.id);
     if (success) {
       toast({ title: "Venue booked!", description: `You've booked "${event.title}" for GHS ${event.price.toLocaleString()}. The venue is now reserved.` });
     } else {
