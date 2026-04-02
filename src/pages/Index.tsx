@@ -181,7 +181,7 @@ const Index = () => {
           className="grid md:grid-cols-2 gap-0 rounded-xl overflow-hidden"
         >
           <div className="relative h-64 md:h-auto">
-            <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80" alt="Event venue" className="h-full w-full object-cover" />
+            <img src={heroBg} alt="Event venue" className="h-full w-full object-cover" />
           </div>
           <div className="bg-primary flex flex-col justify-center p-8 md:p-12">
             <h2 className="font-display text-2xl md:text-3xl font-semibold text-primary-foreground leading-snug">

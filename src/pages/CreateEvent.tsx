@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
-import { useAuth } from "@/context/AuthContext";
 import { EventCategory, VenueType, categoryLabels, venueTypeLabels } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,6 @@ const slideVariants = {
 const CreateEvent = () => {
   const navigate = useNavigate();
   const { addEvent } = useEvents();
-  const { user } = useAuth();
   const { toast } = useToast();
 
   const [step, setStep] = useState(0);
@@ -109,18 +107,12 @@ const CreateEvent = () => {
     setStep((s) => Math.max(s - 1, 0));
   };
 
-  const handleSubmit = async () => {
-    if (!user) {
-      toast({ title: "Please sign in", description: "You must be logged in to list a venue.", variant: "destructive" });
-      navigate("/auth");
-      return;
-    }
-
+  const handleSubmit = () => {
     const validImages = imageUrls.filter((url) => url.trim());
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
 
-    await addEvent({
+    addEvent({
       title: form.title,
       description: form.description,
       date: form.date,
