@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEvents } from "@/context/EventContext";
+import { useAuth } from "@/context/AuthContext";
 import { categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star,
   ChevronLeft, ChevronRight,
-  Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info,
+  Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info, XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +27,8 @@ const fadeUp = {
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue } = useEvents();
+  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue } = useEvents();
+  const { user, isAgent } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const event = getEvent(id || "");
@@ -35,6 +37,7 @@ const EventDetail = () => {
   const [userRating, setUserRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [hasRated, setHasRated] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   if (!event) {
     return (
@@ -51,6 +54,9 @@ const EventDetail = () => {
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
   const isBooked = event.marketStatus !== "available";
+  const myBooking = isMyBooking(event.id);
+  const booking = getBookingForVenue(event.id);
+  const isExpired = booking?.expires_at && new Date(booking.expires_at) < new Date();
 
   const handleDelete = () => {
     deleteEvent(event.id);
@@ -65,12 +71,30 @@ const EventDetail = () => {
     toast({ title: "Thanks for rating!", description: `You gave this venue ${rating} stars.` });
   };
 
-  const handleBook = () => {
-    const success = bookVenue(event.id);
+  const handleBook = async () => {
+    if (!user) {
+      toast({ title: "Sign in required", description: "Please sign in to book a venue.", variant: "destructive" });
+      navigate("/auth");
+      return;
+    }
+    setBookingLoading(true);
+    const success = await bookVenue(event.id);
+    setBookingLoading(false);
     if (success) {
-      toast({ title: "Venue booked!", description: `You've booked "${event.title}" for GHS ${event.price.toLocaleString()}. The venue is now reserved.` });
+      toast({ title: "Venue booked!", description: `You've booked "${event.title}" for GHS ${event.price.toLocaleString()}. Booking expires on the event date.` });
     } else {
-      toast({ title: "Venue unavailable", description: "This venue has already been booked or you need to sign in.", variant: "destructive" });
+      toast({ title: "Booking failed", description: "This venue may already be booked.", variant: "destructive" });
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    setBookingLoading(true);
+    const success = await cancelBooking(event.id);
+    setBookingLoading(false);
+    if (success) {
+      toast({ title: "Booking cancelled", description: "The venue is now available again." });
+    } else {
+      toast({ title: "Cancel failed", description: "Could not cancel the booking.", variant: "destructive" });
     }
   };
 
@@ -175,7 +199,6 @@ const EventDetail = () => {
         <div className="grid md:grid-cols-3 gap-10">
           {/* Main content */}
           <div className="md:col-span-2 space-y-8">
-            {/* About */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
               <h2 className="font-display text-xl font-semibold mb-3">About this venue</h2>
               <p className="text-muted-foreground font-body leading-relaxed">{event.description}</p>
@@ -219,7 +242,7 @@ const EventDetail = () => {
               </div>
             </motion.div>
 
-            {/* Location & Address */}
+            {/* Location */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={2} className="border border-border rounded-xl p-6 space-y-4">
               <h3 className="font-display text-lg font-semibold flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-primary" /> Location Details
@@ -244,7 +267,7 @@ const EventDetail = () => {
               </div>
             </motion.div>
 
-            {/* What's Included */}
+            {/* Inclusions */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={3} className="border border-border rounded-xl p-6 space-y-4">
               <h3 className="font-display text-lg font-semibold">What's Included</h3>
               <div className="flex flex-wrap gap-2">
@@ -293,7 +316,7 @@ const EventDetail = () => {
               </div>
             </motion.div>
 
-            {/* Rating section */}
+            {/* Rating */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5} className="border border-border rounded-xl p-6">
               <h3 className="font-display text-lg font-semibold mb-4">Rate This Venue</h3>
               <div className="flex items-center gap-4">
@@ -366,7 +389,7 @@ const EventDetail = () => {
                 <CalendarDays className="h-5 w-5 text-primary mt-0.5" />
                 <div className="font-body">
                   <p className="font-medium text-sm">Available from {format(eventDate, "EEEE, MMMM d, yyyy")}</p>
-                  <p className="text-xs text-muted-foreground">Rental period negotiable</p>
+                  <p className="text-xs text-muted-foreground">Booking expires on event date</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -388,10 +411,35 @@ const EventDetail = () => {
               <div className="border-t border-border pt-5 space-y-4">
                 <h3 className="font-display text-sm font-semibold">Book This Venue</h3>
                 {isBooked ? (
-                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
-                    <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
-                    <p className="font-body text-sm font-semibold text-destructive">This venue has been booked</p>
-                    <p className="font-body text-xs text-muted-foreground mt-1">Contact the agent for future availability</p>
+                  <div className="space-y-3">
+                    {myBooking ? (
+                      <>
+                        <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 text-center">
+                          <CheckCircle2 className="h-6 w-6 text-primary mx-auto mb-2" />
+                          <p className="font-body text-sm font-semibold text-primary">You booked this venue</p>
+                          {booking?.expires_at && (
+                            <p className="font-body text-xs text-muted-foreground mt-1">
+                              Expires: {format(new Date(booking.expires_at), "MMM d, yyyy")}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full font-body text-destructive hover:bg-destructive/10 gap-2"
+                          onClick={handleCancelBooking}
+                          disabled={bookingLoading}
+                        >
+                          <XCircle className="h-4 w-4" />
+                          {bookingLoading ? "Cancelling..." : "Cancel My Booking"}
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
+                        <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
+                        <p className="font-body text-sm font-semibold text-destructive">This venue has been booked</p>
+                        <p className="font-body text-xs text-muted-foreground mt-1">Contact the agent for future availability</p>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <>
@@ -401,10 +449,15 @@ const EventDetail = () => {
                         <span className="font-semibold">GHS {event.price.toLocaleString()}</span>
                       </div>
                     </div>
-                    <Button className="w-full font-body gap-2" onClick={handleBook}>
+                    <Button className="w-full font-body gap-2" onClick={handleBook} disabled={bookingLoading}>
                       <CheckCircle2 className="h-4 w-4" />
-                      Book Entire Venue — GHS {event.price.toLocaleString()}
+                      {bookingLoading ? "Booking..." : `Book Entire Venue — GHS ${event.price.toLocaleString()}`}
                     </Button>
+                    {!user && (
+                      <p className="text-xs text-muted-foreground font-body text-center">
+                        You need to <Link to="/auth" className="text-primary hover:underline">sign in</Link> to book
+                      </p>
+                    )}
                   </>
                 )}
               </div>
@@ -441,13 +494,16 @@ const EventDetail = () => {
                 </div>
               )}
 
-              <Button
-                variant="outline"
-                className="w-full font-body text-destructive hover:bg-destructive/10"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4 mr-2" /> Remove Listing
-              </Button>
+              {/* Only agents or listing owner can delete */}
+              {user && isAgent && (
+                <Button
+                  variant="outline"
+                  className="w-full font-body text-destructive hover:bg-destructive/10"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" /> Remove Listing
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>

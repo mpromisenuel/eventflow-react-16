@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Menu, LogIn, LogOut, User, Plus } from "lucide-react";
+import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
@@ -15,12 +16,14 @@ const navLinks = [
 const Navbar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, profile, isAgent, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email;
 
   return (
     <nav className="sticky top-0 z-50 glass">
@@ -55,8 +58,19 @@ const Navbar = () => {
             <>
               <span className="hidden sm:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
-                {user.user_metadata?.full_name || user.email}
+                {displayName}
+                {isAgent && (
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Agent</Badge>
+                )}
               </span>
+              {isAgent && (
+                <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="font-body gap-1.5 text-xs">
+                  <LayoutDashboard className="h-4 w-4" /> Dashboard
+                </Button>
+              )}
+              <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="font-body gap-1.5 text-xs">
+                <CalendarDays className="h-4 w-4" /> My Bookings
+              </Button>
               <Button size="sm" onClick={() => navigate("/create-event")} className="font-body gap-1.5 text-xs">
                 <Plus className="h-4 w-4" /> List a Venue
               </Button>
@@ -92,6 +106,11 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
+                {user && isAgent && (
+                  <Link to="/dashboard" className="text-sm text-primary font-medium py-2 flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Link>
+                )}
                 {user ? (
                   <button onClick={handleSignOut} className="text-sm text-destructive py-2 text-left">
                     Sign Out

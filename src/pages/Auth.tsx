@@ -2,10 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { motion } from "framer-motion";
-import { CalendarDays, Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { CalendarDays, Mail, Lock, User, ArrowRight, Eye, EyeOff, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import heroBg from "@/assets/hero-bg.jpg";
 
@@ -14,6 +15,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [isAgent, setIsAgent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
@@ -30,7 +32,7 @@ const Auth = () => {
         setLoading(false);
         return;
       }
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signUp(email, password, fullName, isAgent);
       if (error) {
         toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       } else {
@@ -94,19 +96,33 @@ const Auth = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="space-y-2"
+              className="space-y-4"
             >
-              <Label htmlFor="fullName" className="font-body text-sm">Full Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="fullName"
-                  placeholder="Enter your full name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="pl-10 font-body"
-                  required={isSignUp}
-                />
+              <div className="space-y-2">
+                <Label htmlFor="fullName" className="font-body text-sm">Full Name</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="fullName"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10 font-body"
+                    required={isSignUp}
+                  />
+                </div>
+              </div>
+
+              {/* Agent toggle */}
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-sm font-body font-medium">Sign up as Agent</p>
+                    <p className="text-xs text-muted-foreground font-body">List and manage multiple venues</p>
+                  </div>
+                </div>
+                <Switch checked={isAgent} onCheckedChange={setIsAgent} />
               </div>
             </motion.div>
           )}
