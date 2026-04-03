@@ -68,6 +68,9 @@ const Navbar = () => {
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
                 </Button>
               )}
+              <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="font-body gap-1.5 text-xs">
+                <CalendarDays className="h-4 w-4" /> My Bookings
+              </Button>
               <Button size="sm" onClick={() => navigate("/create-event")} className="font-body gap-1.5 text-xs">
                 <Plus className="h-4 w-4" /> List a Venue
               </Button>
