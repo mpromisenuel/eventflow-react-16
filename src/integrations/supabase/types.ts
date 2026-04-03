@@ -17,19 +17,25 @@ export type Database = {
       bookings: {
         Row: {
           booked_at: string
+          expires_at: string | null
           id: string
+          status: string
           user_id: string
           venue_id: string
         }
         Insert: {
           booked_at?: string
+          expires_at?: string | null
           id?: string
+          status?: string
           user_id: string
           venue_id: string
         }
         Update: {
           booked_at?: string
+          expires_at?: string | null
           id?: string
+          status?: string
           user_id?: string
           venue_id?: string
         }
@@ -43,11 +49,60 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       venues: {
         Row: {
           address: string
           agent_name: string | null
           agent_phone: string | null
+          agent_user_id: string | null
           agent_website: string | null
           amenities: string[]
           category: Database["public"]["Enums"]["event_category"]
@@ -81,6 +136,7 @@ export type Database = {
           address?: string
           agent_name?: string | null
           agent_phone?: string | null
+          agent_user_id?: string | null
           agent_website?: string | null
           amenities?: string[]
           category?: Database["public"]["Enums"]["event_category"]
@@ -114,6 +170,7 @@ export type Database = {
           address?: string
           agent_name?: string | null
           agent_phone?: string | null
+          agent_user_id?: string | null
           agent_website?: string | null
           amenities?: string[]
           category?: Database["public"]["Enums"]["event_category"]
@@ -150,9 +207,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "agent" | "user"
       event_category:
         | "conference"
         | "workshop"
@@ -294,6 +358,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "agent", "user"],
       event_category: [
         "conference",
         "workshop",
