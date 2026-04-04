@@ -6,7 +6,7 @@ import { categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star,
+  ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star, Bookmark,
   ChevronLeft, ChevronRight,
   Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info, XCircle,
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
+import ReviewSection from "@/components/ReviewSection";
 import { useToast } from "@/hooks/use-toast";
 
 const fadeUp = {
