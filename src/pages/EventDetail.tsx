@@ -357,6 +357,9 @@ const EventDetail = () => {
                 </motion.p>
               )}
             </motion.div>
+
+            {/* Reviews */}
+            <ReviewSection venueId={event.id} />
           </div>
 
           {/* Sidebar */}
