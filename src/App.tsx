@@ -37,6 +37,7 @@ const App = () => (
               <Route path="/create-event" element={<CreateEvent />} />
               <Route path="/dashboard" element={<AgentDashboard />} />
               <Route path="/my-bookings" element={<MyBookings />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
