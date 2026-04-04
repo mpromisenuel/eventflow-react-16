@@ -452,8 +452,13 @@ const EventDetail = () => {
                     ) : (
                       <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
                         <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
-                        <p className="font-body text-sm font-semibold text-destructive">This venue has been booked</p>
-                        <p className="font-body text-xs text-muted-foreground mt-1">Contact the agent for future availability</p>
+                        <p className="font-body text-sm font-semibold text-destructive">Not Available</p>
+                        {booking?.expires_at && (
+                          <p className="font-body text-xs text-muted-foreground mt-1">
+                            Available from {format(new Date(booking.expires_at), "MMM d, yyyy")}
+                          </p>
+                        )}
+                        <p className="font-body text-xs text-muted-foreground mt-1">This venue has been fully booked and paid for</p>
                       </div>
                     )}
                   </div>
