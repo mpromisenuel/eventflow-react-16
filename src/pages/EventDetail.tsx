@@ -370,8 +370,8 @@ const EventDetail = () => {
             className="space-y-6"
           >
             <div className="rounded-xl border border-border bg-card p-6 space-y-5 sticky top-20">
-              {/* Like */}
-              <div className="flex items-center justify-between">
+              {/* Like & Favorite */}
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -381,6 +381,17 @@ const EventDetail = () => {
                   <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
                   {event.liked ? "Liked" : "Like"} ({event.likes})
                 </Button>
+                {user && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleFavorite(event.id)}
+                    className={`font-body gap-2 ${favorited ? "border-primary text-primary" : ""}`}
+                  >
+                    <Bookmark className={`h-4 w-4 ${favorited ? "fill-primary" : ""}`} />
+                    {favorited ? "Saved" : "Save"}
+                  </Button>
+                )}
               </div>
 
               {/* Price */}
