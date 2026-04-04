@@ -58,6 +58,7 @@ const EventDetail = () => {
   const myBooking = isMyBooking(event.id);
   const booking = getBookingForVenue(event.id);
   const isExpired = booking?.expires_at && new Date(booking.expires_at) < new Date();
+  const favorited = user ? isFavorited(event.id) : false;
 
   const handleDelete = () => {
     deleteEvent(event.id);
