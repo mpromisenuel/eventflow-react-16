@@ -6,7 +6,7 @@ import { categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star,
+  ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star, Bookmark,
   ChevronLeft, ChevronRight,
   Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info, XCircle,
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Navbar from "@/components/Navbar";
+import ReviewSection from "@/components/ReviewSection";
 import { useToast } from "@/hooks/use-toast";
 
 const fadeUp = {
@@ -27,7 +28,7 @@ const fadeUp = {
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue } = useEvents();
+  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue, isFavorited, toggleFavorite } = useEvents();
   const { user, isAgent } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -57,6 +58,7 @@ const EventDetail = () => {
   const myBooking = isMyBooking(event.id);
   const booking = getBookingForVenue(event.id);
   const isExpired = booking?.expires_at && new Date(booking.expires_at) < new Date();
+  const favorited = user ? isFavorited(event.id) : false;
 
   const handleDelete = () => {
     deleteEvent(event.id);
@@ -355,6 +357,9 @@ const EventDetail = () => {
                 </motion.p>
               )}
             </motion.div>
+
+            {/* Reviews */}
+            <ReviewSection venueId={event.id} />
           </div>
 
           {/* Sidebar */}
@@ -365,8 +370,8 @@ const EventDetail = () => {
             className="space-y-6"
           >
             <div className="rounded-xl border border-border bg-card p-6 space-y-5 sticky top-20">
-              {/* Like */}
-              <div className="flex items-center justify-between">
+              {/* Like & Favorite */}
+              <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -376,6 +381,17 @@ const EventDetail = () => {
                   <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
                   {event.liked ? "Liked" : "Like"} ({event.likes})
                 </Button>
+                {user && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleFavorite(event.id)}
+                    className={`font-body gap-2 ${favorited ? "border-primary text-primary" : ""}`}
+                  >
+                    <Bookmark className={`h-4 w-4 ${favorited ? "fill-primary" : ""}`} />
+                    {favorited ? "Saved" : "Save"}
+                  </Button>
+                )}
               </div>
 
               {/* Price */}
@@ -436,8 +452,13 @@ const EventDetail = () => {
                     ) : (
                       <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-center">
                         <AlertCircle className="h-6 w-6 text-destructive mx-auto mb-2" />
-                        <p className="font-body text-sm font-semibold text-destructive">This venue has been booked</p>
-                        <p className="font-body text-xs text-muted-foreground mt-1">Contact the agent for future availability</p>
+                        <p className="font-body text-sm font-semibold text-destructive">Not Available</p>
+                        {booking?.expires_at && (
+                          <p className="font-body text-xs text-muted-foreground mt-1">
+                            Available from {format(new Date(booking.expires_at), "MMM d, yyyy")}
+                          </p>
+                        )}
+                        <p className="font-body text-xs text-muted-foreground mt-1">This venue has been fully booked and paid for</p>
                       </div>
                     )}
                   </div>

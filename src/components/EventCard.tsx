@@ -1,21 +1,27 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { CalendarDays, MapPin, Users, Heart, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, MapPin, Users, Heart, Star, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 import { format } from "date-fns";
 import { Event, categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/context/EventContext";
+import { useAuth } from "@/context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface EventCardProps {
   event: Event;
 }
 
 const EventCard = ({ event }: EventCardProps) => {
-  const { toggleLike } = useEvents();
+  const { toggleLike, isFavorited, toggleFavorite, getBookingForVenue } = useEvents();
+  const { user } = useAuth();
   const [currentImage, setCurrentImage] = useState(0);
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
-  const spotsLeft = event.maxAttendees - event.attendees;
+  const isBooked = event.marketStatus !== "available";
+  const booking = getBookingForVenue(event.id);
+  const isExpired = booking?.expires_at && new Date(booking.expires_at) < new Date();
+  const favorited = user ? isFavorited(event.id) : false;
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,11 +41,28 @@ const EventCard = ({ event }: EventCardProps) => {
     toggleLike(event.id);
   };
 
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (user) toggleFavorite(event.id);
+  };
+
   return (
     <Link to={`/event/${event.id}`} className="group block">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
         <div className="relative h-48 overflow-hidden">
-          <img src={images[currentImage]} alt={event.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImage}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              src={images[currentImage]}
+              alt={event.title}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
 
           {images.length > 1 && (
@@ -58,18 +81,30 @@ const EventCard = ({ event }: EventCardProps) => {
             </>
           )}
 
-          <div className="absolute top-3 left-3 flex gap-1.5">
+          <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
             <Badge className={`${categoryColors[event.category]} border-none font-body text-xs`}>
               {categoryLabels[event.category]}
             </Badge>
             <Badge variant="outline" className="bg-background/70 font-body text-[10px] border-none">
               {venueTypeLabels[event.venueType]}
             </Badge>
+            {isBooked && !isExpired && (
+              <Badge variant="destructive" className="font-body text-[10px] border-none">
+                Not Available
+              </Badge>
+            )}
           </div>
 
-          <button onClick={handleLike} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 flex items-center justify-center hover:bg-background transition-colors">
-            <Heart className={`h-4 w-4 transition-colors ${event.liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
-          </button>
+          <div className="absolute top-3 right-3 flex gap-1.5">
+            {user && (
+              <button onClick={handleFavorite} className="w-8 h-8 rounded-full bg-background/80 flex items-center justify-center hover:bg-background transition-colors">
+                <Bookmark className={`h-4 w-4 transition-colors ${favorited ? "fill-primary text-primary" : "text-foreground"}`} />
+              </button>
+            )}
+            <button onClick={handleLike} className="w-8 h-8 rounded-full bg-background/80 flex items-center justify-center hover:bg-background transition-colors">
+              <Heart className={`h-4 w-4 transition-colors ${event.liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
+            </button>
+          </div>
 
           <div className="absolute bottom-3 left-3 right-3">
             <h3 className="font-display text-lg font-semibold text-primary-foreground leading-tight line-clamp-2">{event.title}</h3>
@@ -101,16 +136,18 @@ const EventCard = ({ event }: EventCardProps) => {
               <MapPin className="h-3.5 w-3.5 text-primary" />
               <span className="truncate">{event.location}</span>
             </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-primary" />
-                  <span>Capacity: {event.maxAttendees} guests</span>
-                </div>
-                <span className="font-semibold text-primary text-sm">GHS {event.price.toLocaleString()}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5 text-primary" />
+                <span>Capacity: {event.maxAttendees} guests</span>
               </div>
-              {event.marketStatus !== "available" && (
-                <Badge variant="destructive" className="font-body text-xs w-fit">Booked</Badge>
-              )}
+              <span className="font-semibold text-primary text-sm">GHS {event.price.toLocaleString()}</span>
+            </div>
+            {isBooked && !isExpired && booking?.expires_at && (
+              <div className="bg-destructive/10 text-destructive rounded px-2 py-1 text-[11px] font-medium">
+                Booked — Available from {format(new Date(booking.expires_at), "MMM d, yyyy")}
+              </div>
+            )}
           </div>
         </div>
       </div>

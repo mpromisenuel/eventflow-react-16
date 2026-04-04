@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import CreateEvent from "./pages/CreateEvent";
 import AgentDashboard from "./pages/AgentDashboard";
 import MyBookings from "./pages/MyBookings";
+import Favorites from "./pages/Favorites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/create-event" element={<CreateEvent />} />
               <Route path="/dashboard" element={<AgentDashboard />} />
               <Route path="/my-bookings" element={<MyBookings />} />
+              <Route path="/favorites" element={<Favorites />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

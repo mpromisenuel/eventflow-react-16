@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard } from "lucide-react";
+import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +68,9 @@ const Navbar = () => {
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
                 </Button>
               )}
+              <Button size="sm" variant="outline" onClick={() => navigate("/favorites")} className="font-body gap-1.5 text-xs">
+                <Bookmark className="h-4 w-4" /> Wishlist
+              </Button>
               <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="font-body gap-1.5 text-xs">
                 <CalendarDays className="h-4 w-4" /> My Bookings
               </Button>
