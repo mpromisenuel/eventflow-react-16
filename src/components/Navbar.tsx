@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard } from "lucide-react";
+import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
