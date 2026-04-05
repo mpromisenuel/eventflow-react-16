@@ -17,6 +17,11 @@ import {
   CalendarDays, MapPin, Building2, DollarSign, User, Phone, Globe,
   ImagePlus, X, Plus, Tag, Map, ChevronLeft, ChevronRight, Check,
 } from "lucide-react";
+import {
+  venueStep0Schema, venueStep1Schema, venueStep2Schema,
+  venueStep3Schema, venueStep4Schema,
+} from "@/lib/validations";
+import { z } from "zod";
 
 const defaultImages: Record<EventCategory, string> = {
   conference: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
@@ -48,6 +53,7 @@ const CreateEvent = () => {
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [form, setForm] = useState({
     title: "",
@@ -89,25 +95,78 @@ const CreateEvent = () => {
     setImageUrls(updated);
   };
 
+  const validateStep = (stepIndex: number): boolean => {
+    setErrors({});
+    let result: z.SafeParseReturnType<any, any>;
+
+    switch (stepIndex) {
+      case 0:
+        result = venueStep0Schema.safeParse({
+          title: form.title,
+          description: form.description,
+          date: form.date,
+          time: form.time,
+          category: form.category,
+          venueType: form.venueType,
+          maxAttendees: form.maxAttendees,
+        });
+        break;
+      case 1:
+        result = venueStep1Schema.safeParse({
+          location: form.location,
+          address: form.address || undefined,
+          city: form.city,
+          region: form.region || undefined,
+          mapUrl: form.mapUrl || undefined,
+        });
+        break;
+      case 2:
+        result = venueStep2Schema.safeParse({
+          price: form.price,
+          propertyRef: form.propertyRef || undefined,
+        });
+        break;
+      case 3:
+        result = venueStep3Schema.safeParse({
+          agentName: form.agentName || undefined,
+          agentPhone: form.agentPhone || undefined,
+          agentWebsite: form.agentWebsite || undefined,
+        });
+        break;
+      case 4:
+        result = venueStep4Schema.safeParse({ imageUrls });
+        break;
+      default:
+        return true;
+    }
+
+    if (!result!.success) {
+      const fieldErrors: Record<string, string> = {};
+      result!.error.errors.forEach((err: any) => {
+        const field = err.path[0] as string;
+        if (!fieldErrors[field]) fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+      toast({ title: "Please fix the errors", description: "Some fields need attention.", variant: "destructive" });
+      return false;
+    }
+    return true;
+  };
+
   const goNext = () => {
-    if (step === 0 && (!form.title || !form.description || !form.date || !form.time)) {
-      toast({ title: "Missing fields", description: "Please fill in all required venue details.", variant: "destructive" });
-      return;
-    }
-    if (step === 1 && (!form.location || !form.city)) {
-      toast({ title: "Missing fields", description: "Please fill in location and city.", variant: "destructive" });
-      return;
-    }
+    if (!validateStep(step)) return;
     setDirection(1);
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
 
   const goBack = () => {
+    setErrors({});
     setDirection(-1);
     setStep((s) => Math.max(s - 1, 0));
   };
 
   const handleSubmit = () => {
+    // Validate current step (amenities - no strict validation needed)
     const validImages = imageUrls.filter((url) => url.trim());
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
@@ -153,12 +212,16 @@ const CreateEvent = () => {
   const progress = ((step + 1) / STEPS.length) * 100;
   const isLast = step === STEPS.length - 1;
 
+  const fieldError = (field: string) =>
+    errors[field] ? <p className="text-xs text-destructive font-body mt-1">{errors[field]}</p> : null;
+
+  const errClass = (field: string) => errors[field] ? "border-destructive" : "";
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       <div className="container mx-auto px-4 py-10 max-w-3xl">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-1">
             List a Venue for Rent
@@ -168,7 +231,6 @@ const CreateEvent = () => {
           </p>
         </div>
 
-        {/* Step indicator */}
         <div className="mb-8 space-y-3">
           <Progress value={progress} className="h-2" />
           <div className="flex justify-between">
@@ -180,13 +242,13 @@ const CreateEvent = () => {
                 <button
                   key={i}
                   type="button"
-                  onClick={() => { setDirection(i > step ? 1 : -1); setStep(i); }}
+                  onClick={() => {
+                    if (i > step && !validateStep(step)) return;
+                    setDirection(i > step ? 1 : -1);
+                    setStep(i);
+                  }}
                   className={`flex flex-col items-center gap-1 transition-colors ${
-                    active
-                      ? "text-primary"
-                      : done
-                      ? "text-primary/60"
-                      : "text-muted-foreground/50"
+                    active ? "text-primary" : done ? "text-primary/60" : "text-muted-foreground/50"
                   }`}
                 >
                   <span
@@ -207,7 +269,6 @@ const CreateEvent = () => {
           </div>
         </div>
 
-        {/* Step content */}
         <div className="relative overflow-hidden min-h-[340px]">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -224,20 +285,25 @@ const CreateEvent = () => {
                 <>
                   <div>
                     <Label htmlFor="title">Venue / Listing Title *</Label>
-                    <Input id="title" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Give your venue a memorable name" required />
+                    <Input id="title" value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Give your venue a memorable name" className={errClass("title")} maxLength={150} />
+                    {fieldError("title")}
                   </div>
                   <div>
                     <Label htmlFor="description">Description *</Label>
-                    <Textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the venue — what's included, the vibe, amenities, capacity..." rows={4} required />
+                    <Textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Describe the venue — what's included, the vibe, amenities, capacity..." rows={4} className={errClass("description")} maxLength={2000} />
+                    {fieldError("description")}
+                    <span className="text-xs text-muted-foreground">{form.description.length}/2000</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="date">Available From *</Label>
-                      <Input id="date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} required />
+                      <Input id="date" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className={errClass("date")} />
+                      {fieldError("date")}
                     </div>
                     <div>
                       <Label htmlFor="time">Opening Time *</Label>
-                      <Input id="time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} required />
+                      <Input id="time" type="time" value={form.time} onChange={(e) => set("time", e.target.value)} className={errClass("time")} />
+                      {fieldError("time")}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -265,7 +331,8 @@ const CreateEvent = () => {
                     </div>
                     <div>
                       <Label htmlFor="max">Max Capacity *</Label>
-                      <Input id="max" type="number" min={1} value={form.maxAttendees} onChange={(e) => set("maxAttendees", parseInt(e.target.value) || 1)} required />
+                      <Input id="max" type="number" min={1} value={form.maxAttendees} onChange={(e) => set("maxAttendees", parseInt(e.target.value) || 1)} className={errClass("maxAttendees")} />
+                      {fieldError("maxAttendees")}
                     </div>
                   </div>
                 </>
@@ -276,7 +343,8 @@ const CreateEvent = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="location">Location Name *</Label>
-                      <Input id="location" value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="e.g. Ashiyie, off Adenta-Dodowa Road" required />
+                      <Input id="location" value={form.location} onChange={(e) => set("location", e.target.value)} placeholder="e.g. Ashiyie, off Adenta-Dodowa Road" className={errClass("location")} />
+                      {fieldError("location")}
                     </div>
                     <div>
                       <Label htmlFor="address">Full Address</Label>
@@ -286,7 +354,8 @@ const CreateEvent = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="city">City / Area *</Label>
-                      <Input id="city" value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="e.g. Adenta Municipal" required />
+                      <Input id="city" value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="e.g. Adenta Municipal" className={errClass("city")} />
+                      {fieldError("city")}
                     </div>
                     <div>
                       <Label htmlFor="region">Region</Label>
@@ -296,8 +365,9 @@ const CreateEvent = () => {
                       <Label htmlFor="mapUrl">Map URL</Label>
                       <div className="relative">
                         <Map className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="mapUrl" value={form.mapUrl} onChange={(e) => set("mapUrl", e.target.value)} placeholder="Google Maps link" className="pl-10" />
+                        <Input id="mapUrl" value={form.mapUrl} onChange={(e) => set("mapUrl", e.target.value)} placeholder="Google Maps link" className={`pl-10 ${errClass("mapUrl")}`} />
                       </div>
+                      {fieldError("mapUrl")}
                     </div>
                   </div>
                 </>
@@ -307,7 +377,8 @@ const CreateEvent = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="price">Rental Price (GHS) *</Label>
-                    <Input id="price" type="number" min={0} value={form.price} onChange={(e) => set("price", parseInt(e.target.value) || 0)} required />
+                    <Input id="price" type="number" min={0} value={form.price} onChange={(e) => set("price", parseInt(e.target.value) || 0)} className={errClass("price")} />
+                    {fieldError("price")}
                   </div>
                   <div>
                     <Label htmlFor="propertyRef">Property Reference</Label>
@@ -329,15 +400,17 @@ const CreateEvent = () => {
                     <Label htmlFor="agentPhone">Phone</Label>
                     <div className="relative">
                       <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="agentPhone" value={form.agentPhone} onChange={(e) => set("agentPhone", e.target.value)} placeholder="+233241761723" className="pl-10" />
+                      <Input id="agentPhone" value={form.agentPhone} onChange={(e) => set("agentPhone", e.target.value)} placeholder="+233241761723" className={`pl-10 ${errClass("agentPhone")}`} />
                     </div>
+                    {fieldError("agentPhone")}
                   </div>
                   <div>
                     <Label htmlFor="agentWebsite">Website</Label>
                     <div className="relative">
                       <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="agentWebsite" value={form.agentWebsite} onChange={(e) => set("agentWebsite", e.target.value)} placeholder="https://..." className="pl-10" />
+                      <Input id="agentWebsite" value={form.agentWebsite} onChange={(e) => set("agentWebsite", e.target.value)} placeholder="https://..." className={`pl-10 ${errClass("agentWebsite")}`} />
                     </div>
+                    {fieldError("agentWebsite")}
                   </div>
                 </div>
               )}
@@ -345,6 +418,7 @@ const CreateEvent = () => {
               {step === 4 && (
                 <>
                   <p className="text-xs text-muted-foreground">Add up to 6 image URLs. Leave blank to use a default image.</p>
+                  {errors.imageUrls && <p className="text-xs text-destructive font-body">{errors.imageUrls}</p>}
                   <div className="space-y-3">
                     {imageUrls.map((url, i) => (
                       <div key={i} className="flex gap-2 items-center">
@@ -397,7 +471,6 @@ const CreateEvent = () => {
           </AnimatePresence>
         </div>
 
-        {/* Navigation buttons */}
         <div className="flex justify-between items-center pt-8 border-t border-border mt-8">
           <Button
             type="button"

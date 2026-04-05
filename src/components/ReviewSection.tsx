@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { reviewSchema } from "@/lib/validations";
 
 interface ReviewSectionProps {
   venueId: string;
@@ -23,12 +24,21 @@ const ReviewSection = ({ venueId }: ReviewSectionProps) => {
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async () => {
-    if (rating === 0) {
-      toast({ title: "Please select a rating", variant: "destructive" });
+    setErrors({});
+    const result = reviewSchema.safeParse({ rating, comment: comment || undefined });
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        if (!fieldErrors[field]) fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
       return;
     }
+
     setSubmitting(true);
     const success = await addReview(venueId, rating, comment);
     setSubmitting(false);
@@ -51,7 +61,6 @@ const ReviewSection = ({ venueId }: ReviewSectionProps) => {
         <MessageSquare className="h-5 w-5 text-primary" /> Reviews ({reviews.length})
       </h3>
 
-      {/* Write a review */}
       {user && !alreadyReviewed && (
         <div className="border border-border rounded-lg p-4 space-y-3 bg-muted/30">
           <p className="font-body text-sm font-medium">Write a review</p>
@@ -74,21 +83,27 @@ const ReviewSection = ({ venueId }: ReviewSectionProps) => {
               </button>
             ))}
           </div>
+          {errors.rating && <p className="text-xs text-destructive font-body">{errors.rating}</p>}
           <Textarea
             placeholder="Share your experience with this venue..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="font-body text-sm"
+            className={`font-body text-sm ${errors.comment ? "border-destructive" : ""}`}
             rows={3}
+            maxLength={1000}
           />
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting || rating === 0}
-            className="font-body text-xs"
-            size="sm"
-          >
-            {submitting ? "Submitting..." : "Submit Review"}
-          </Button>
+          {errors.comment && <p className="text-xs text-destructive font-body">{errors.comment}</p>}
+          <div className="flex items-center justify-between">
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting || rating === 0}
+              className="font-body text-xs"
+              size="sm"
+            >
+              {submitting ? "Submitting..." : "Submit Review"}
+            </Button>
+            <span className="text-xs text-muted-foreground font-body">{comment.length}/1000</span>
+          </div>
         </div>
       )}
 
@@ -100,7 +115,6 @@ const ReviewSection = ({ venueId }: ReviewSectionProps) => {
         <p className="text-sm text-muted-foreground font-body">Sign in to leave a review</p>
       )}
 
-      {/* Review list */}
       {reviews.length > 0 ? (
         <div className="space-y-4">
           {reviews.map((review) => (

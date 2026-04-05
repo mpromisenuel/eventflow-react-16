@@ -7,6 +7,7 @@ import { CalendarDays, Mail, Phone, MapPin, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
+import { contactSchema } from "@/lib/validations";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -16,9 +17,23 @@ const fadeUp = {
 const Contact = () => {
   const { toast } = useToast();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+
+    const result = contactSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        if (!fieldErrors[field]) fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
     toast({ title: "Message sent!", description: "We'll get back to you within 24 hours." });
     setForm({ name: "", email: "", subject: "", message: "" });
   };
@@ -67,24 +82,28 @@ const Contact = () => {
 
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={2}>
             <h2 className="font-display text-2xl font-semibold mb-6">Send a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-body font-medium mb-1 block">Name</label>
-                  <Input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Your name" className="font-body" />
+                  <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Your name" className={`font-body ${errors.name ? "border-destructive" : ""}`} />
+                  {errors.name && <p className="text-xs text-destructive font-body mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <label className="text-sm font-body font-medium mb-1 block">Email</label>
-                  <Input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" className="font-body" />
+                  <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" className={`font-body ${errors.email ? "border-destructive" : ""}`} />
+                  {errors.email && <p className="text-xs text-destructive font-body mt-1">{errors.email}</p>}
                 </div>
               </div>
               <div>
                 <label className="text-sm font-body font-medium mb-1 block">Subject</label>
-                <Input required value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="What's this about?" className="font-body" />
+                <Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="What's this about?" className={`font-body ${errors.subject ? "border-destructive" : ""}`} />
+                {errors.subject && <p className="text-xs text-destructive font-body mt-1">{errors.subject}</p>}
               </div>
               <div>
                 <label className="text-sm font-body font-medium mb-1 block">Message</label>
-                <Textarea required value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell us more..." rows={5} className="font-body" />
+                <Textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell us more..." rows={5} className={`font-body ${errors.message ? "border-destructive" : ""}`} />
+                {errors.message && <p className="text-xs text-destructive font-body mt-1">{errors.message}</p>}
               </div>
               <Button type="submit" className="font-body gap-2 w-full sm:w-auto">
                 <Send className="h-4 w-4" /> Send Message

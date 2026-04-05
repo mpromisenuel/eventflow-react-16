@@ -34,8 +34,8 @@ interface EventContextType {
   bookings: Booking[];
   favorites: Favorite[];
   reviews: Review[];
-  addEvent: (event: Omit<Event, "id">) => void;
-  deleteEvent: (id: string) => void;
+  addEvent: (event: Omit<Event, "id">) => Promise<void>;
+  deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
   toggleLike: (id: string) => void;
   rateEvent: (id: string, rating: number) => void;
@@ -52,13 +52,62 @@ interface EventContextType {
 
 const EventContext = createContext<EventContextType | undefined>(undefined);
 
+// Map DB venue row to Event type
+const mapVenueToEvent = (v: any): Event => ({
+  id: v.id,
+  title: v.title,
+  description: v.description,
+  date: v.date,
+  time: v.time,
+  location: v.location,
+  category: v.category,
+  attendees: 0,
+  maxAttendees: v.max_attendees,
+  image: v.image,
+  images: v.images?.length > 0 ? v.images : [v.image],
+  status: v.status as "upcoming" | "ongoing" | "completed",
+  likes: v.likes,
+  liked: false,
+  rating: Number(v.rating),
+  ratingCount: v.rating_count,
+  price: Number(v.price),
+  orders: 0,
+  venueType: v.venue_type,
+  propertyRef: v.property_ref || undefined,
+  agentName: v.agent_name || undefined,
+  agentPhone: v.agent_phone || undefined,
+  agentWebsite: v.agent_website || undefined,
+  amenities: v.amenities || [],
+  inclusions: v.inclusions || [],
+  extraFees: v.extra_fees || [],
+  address: v.address,
+  city: v.city,
+  region: v.region,
+  mapUrl: v.map_url || undefined,
+  marketStatus: v.market_status,
+  lastUpdated: v.updated_at?.split("T")[0] || "",
+});
+
 export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [events, setEvents] = useState<Event[]>(sampleEvents);
+  const [events, setEvents] = useState<Event[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+
+  // Fetch venues from database, fallback to sample data
+  const fetchVenues = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from("venues").select("*").order("created_at", { ascending: false });
+    if (data && data.length > 0) {
+      setEvents(data.map(mapVenueToEvent));
+    } else {
+      // Use sample events as fallback
+      setEvents(sampleEvents);
+    }
+    setLoading(false);
+  }, []);
 
   // Fetch bookings from database
   const fetchBookings = useCallback(async () => {
@@ -90,21 +139,63 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   useEffect(() => {
-    fetchBookings();
-    fetchReviews();
-  }, [fetchBookings, fetchReviews]);
+    fetchVenues().then(() => {
+      fetchBookings();
+      fetchReviews();
+    });
+  }, [fetchVenues, fetchBookings, fetchReviews]);
 
   useEffect(() => {
     fetchFavorites();
   }, [fetchFavorites]);
 
-  const addEvent = useCallback((event: Omit<Event, "id">) => {
-    const newEvent: Event = { ...event, id: crypto.randomUUID() };
-    setEvents((prev) => [newEvent, ...prev]);
-  }, []);
+  const addEvent = useCallback(async (event: Omit<Event, "id">) => {
+    if (!user) return;
 
-  const deleteEvent = useCallback((id: string) => {
-    setEvents((prev) => prev.filter((e) => e.id !== id));
+    const { data, error } = await supabase.from("venues").insert({
+      title: event.title,
+      description: event.description,
+      date: event.date,
+      time: event.time,
+      location: event.location,
+      category: event.category,
+      venue_type: event.venueType,
+      max_attendees: event.maxAttendees,
+      price: event.price,
+      address: event.address,
+      city: event.city,
+      region: event.region,
+      property_ref: event.propertyRef || null,
+      agent_name: event.agentName || null,
+      agent_phone: event.agentPhone || null,
+      agent_website: event.agentWebsite || null,
+      map_url: event.mapUrl || null,
+      amenities: event.amenities,
+      inclusions: event.inclusions,
+      extra_fees: event.extraFees || [],
+      image: event.image,
+      images: event.images,
+      status: event.status,
+      likes: 0,
+      rating: 0,
+      rating_count: 0,
+      market_status: "available" as const,
+      user_id: user.id,
+      agent_user_id: user.id,
+    }).select().single();
+
+    if (data) {
+      setEvents((prev) => [mapVenueToEvent(data), ...prev]);
+    } else if (error) {
+      console.error("Failed to create venue:", error);
+    }
+  }, [user]);
+
+  const deleteEvent = useCallback(async (id: string) => {
+    const { error } = await supabase.from("venues").delete().eq("id", id);
+    if (!error) {
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+    }
   }, []);
 
   const getEvent = useCallback(
@@ -120,7 +211,13 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           : e
       )
     );
-  }, []);
+    // Persist like count
+    const event = events.find(e => e.id === id);
+    if (event) {
+      const newLikes = event.liked ? event.likes - 1 : event.likes + 1;
+      supabase.from("venues").update({ likes: newLikes }).eq("id", id).then();
+    }
+  }, [events]);
 
   const rateEvent = useCallback((id: string, rating: number) => {
     setEvents((prev) =>
@@ -128,7 +225,10 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (e.id !== id) return e;
         const newCount = e.ratingCount + 1;
         const newRating = (e.rating * e.ratingCount + rating) / newCount;
-        return { ...e, rating: Math.round(newRating * 10) / 10, ratingCount: newCount };
+        const rounded = Math.round(newRating * 10) / 10;
+        // Persist to DB
+        supabase.from("venues").update({ rating: rounded, rating_count: newCount }).eq("id", id).then();
+        return { ...e, rating: rounded, ratingCount: newCount };
       })
     );
   }, []);
@@ -165,6 +265,9 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const { error } = await supabase.from("bookings").delete().eq("id", booking.id);
     if (error) return false;
+
+    // Also update venue status back to available
+    await supabase.from("venues").update({ market_status: "available" as const }).eq("id", venueId);
 
     setEvents((prev) =>
       prev.map((e) =>
