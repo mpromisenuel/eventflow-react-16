@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { signInSchema, signUpSchema } from "@/lib/validations";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Auth = () => {
@@ -18,20 +19,34 @@ const Auth = () => {
   const [isAgent, setIsAgent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setErrors({});
 
+    // Validate
+    const schema = isSignUp ? signUpSchema : signInSchema;
+    const data = isSignUp
+      ? { email, password, fullName, isAgent }
+      : { email, password };
+    const result = schema.safeParse(data);
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        const field = err.path[0] as string;
+        if (!fieldErrors[field]) fieldErrors[field] = err.message;
+      });
+      setErrors(fieldErrors);
+      return;
+    }
+
+    setLoading(true);
     if (isSignUp) {
-      if (!fullName.trim()) {
-        toast({ title: "Full name is required", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
       const { error } = await signUp(email, password, fullName, isAgent);
       if (error) {
         toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
@@ -51,7 +66,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left - Image */}
       <motion.div
         initial={{ opacity: 0, x: -30 }}
         animate={{ opacity: 1, x: 0 }}
@@ -69,7 +83,6 @@ const Auth = () => {
         </div>
       </motion.div>
 
-      {/* Right - Form */}
       <motion.div
         initial={{ opacity: 0, x: 30 }}
         animate={{ opacity: 1, x: 0 }}
@@ -90,7 +103,7 @@ const Auth = () => {
             : "Sign in to your account to continue"}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-5 max-w-sm">
+        <form onSubmit={handleSubmit} className="space-y-5 max-w-sm" noValidate>
           {isSignUp && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
@@ -107,13 +120,12 @@ const Auth = () => {
                     placeholder="Enter your full name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="pl-10 font-body"
-                    required={isSignUp}
+                    className={`pl-10 font-body ${errors.fullName ? "border-destructive" : ""}`}
                   />
                 </div>
+                {errors.fullName && <p className="text-xs text-destructive font-body">{errors.fullName}</p>}
               </div>
 
-              {/* Agent toggle */}
               <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-primary" />
@@ -137,10 +149,10 @@ const Auth = () => {
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 font-body"
-                required
+                className={`pl-10 font-body ${errors.email ? "border-destructive" : ""}`}
               />
             </div>
+            {errors.email && <p className="text-xs text-destructive font-body">{errors.email}</p>}
           </div>
 
           <div className="space-y-2">
@@ -153,9 +165,7 @@ const Auth = () => {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 pr-10 font-body"
-                required
-                minLength={6}
+                className={`pl-10 pr-10 font-body ${errors.password ? "border-destructive" : ""}`}
               />
               <button
                 type="button"
@@ -165,6 +175,7 @@ const Auth = () => {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            {errors.password && <p className="text-xs text-destructive font-body">{errors.password}</p>}
           </div>
 
           <Button type="submit" className="w-full font-body gap-2" disabled={loading}>
@@ -176,7 +187,7 @@ const Auth = () => {
         <p className="mt-6 text-sm font-body text-muted-foreground">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
           <button
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={() => { setIsSignUp(!isSignUp); setErrors({}); }}
             className="text-primary font-medium hover:underline"
           >
             {isSignUp ? "Sign in" : "Sign up"}
