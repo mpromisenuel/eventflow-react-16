@@ -165,13 +165,13 @@ const CreateEvent = () => {
     setStep((s) => Math.max(s - 1, 0));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate current step (amenities - no strict validation needed)
     const validImages = imageUrls.filter((url) => url.trim());
     const fallback = defaultImages[form.category];
     const images = validImages.length > 0 ? validImages : [fallback];
 
-    addEvent({
+    await addEvent({
       title: form.title,
       description: form.description,
       date: form.date,
