@@ -100,6 +100,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [userLikes, setUserLikes] = useState<UserLike[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
