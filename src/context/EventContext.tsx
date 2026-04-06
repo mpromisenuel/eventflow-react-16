@@ -19,6 +19,12 @@ interface Favorite {
   user_id: string;
 }
 
+interface UserLike {
+  id: string;
+  venue_id: string;
+  user_id: string;
+}
+
 interface Review {
   id: string;
   venue_id: string;
@@ -37,7 +43,8 @@ interface EventContextType {
   addEvent: (event: Omit<Event, "id">) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
-  toggleLike: (id: string) => void;
+  toggleLike: (id: string) => Promise<void>;
+  isLiked: (id: string) => boolean;
   rateEvent: (id: string, rating: number) => void;
   bookVenue: (id: string) => Promise<boolean>;
   cancelBooking: (venueId: string) => Promise<boolean>;
@@ -93,6 +100,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [userLikes, setUserLikes] = useState<UserLike[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
@@ -138,6 +146,13 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (data) setReviews(data as Review[]);
   }, []);
 
+  // Fetch user likes
+  const fetchUserLikes = useCallback(async () => {
+    if (!user) { setUserLikes([]); return; }
+    const { data } = await supabase.from("user_likes").select("*").eq("user_id", user.id);
+    if (data) setUserLikes(data as UserLike[]);
+  }, [user]);
+
   useEffect(() => {
     fetchVenues().then(() => {
       fetchBookings();
@@ -147,7 +162,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     fetchFavorites();
-  }, [fetchFavorites]);
+    fetchUserLikes();
+  }, [fetchFavorites, fetchUserLikes]);
 
   const addEvent = useCallback(async (event: Omit<Event, "id">) => {
     if (!user) return;
@@ -203,21 +219,21 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [events]
   );
 
-  const toggleLike = useCallback((id: string) => {
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === id
-          ? { ...e, liked: !e.liked, likes: e.liked ? e.likes - 1 : e.likes + 1 }
-          : e
-      )
-    );
-    // Persist like count
-    const event = events.find(e => e.id === id);
-    if (event) {
-      const newLikes = event.liked ? event.likes - 1 : event.likes + 1;
-      supabase.from("venues").update({ likes: newLikes }).eq("id", id).then();
+  const toggleLike = useCallback(async (id: string) => {
+    if (!user) return;
+    const existing = userLikes.find(l => l.venue_id === id);
+    if (existing) {
+      await supabase.from("user_likes").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("user_likes").insert({ venue_id: id, user_id: user.id } as any);
     }
-  }, [events]);
+    // Refresh likes and venues to get updated count
+    await Promise.all([fetchUserLikes(), fetchVenues()]);
+  }, [user, userLikes, fetchUserLikes, fetchVenues]);
+
+  const isLiked = useCallback((id: string) => {
+    return userLikes.some(l => l.venue_id === id);
+  }, [userLikes]);
 
   const rateEvent = useCallback((id: string, rating: number) => {
     setEvents((prev) =>
@@ -331,7 +347,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <EventContext.Provider value={{
       events, loading, bookings, favorites, reviews,
       addEvent, deleteEvent, getEvent,
-      toggleLike, rateEvent, bookVenue, cancelBooking, getBookingForVenue, isMyBooking,
+      toggleLike, isLiked, rateEvent, bookVenue, cancelBooking, getBookingForVenue, isMyBooking,
       toggleFavorite, isFavorited,
       addReview, getReviewsForVenue, hasReviewed,
     }}>

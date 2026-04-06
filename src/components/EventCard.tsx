@@ -13,7 +13,7 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event }: EventCardProps) => {
-  const { toggleLike, isFavorited, toggleFavorite, getBookingForVenue } = useEvents();
+  const { toggleLike, isFavorited, toggleFavorite, getBookingForVenue, isLiked } = useEvents();
   const { user } = useAuth();
   const [currentImage, setCurrentImage] = useState(0);
   const images = event.images?.length > 0 ? event.images : [event.image];
@@ -22,6 +22,7 @@ const EventCard = ({ event }: EventCardProps) => {
   const booking = getBookingForVenue(event.id);
   const isExpired = booking?.expires_at && new Date(booking.expires_at) < new Date();
   const favorited = user ? isFavorited(event.id) : false;
+  const liked = user ? isLiked(event.id) : false;
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -102,7 +103,7 @@ const EventCard = ({ event }: EventCardProps) => {
               </button>
             )}
             <button onClick={handleLike} className="w-8 h-8 rounded-full bg-background/80 flex items-center justify-center hover:bg-background transition-colors">
-              <Heart className={`h-4 w-4 transition-colors ${event.liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
+              <Heart className={`h-4 w-4 transition-colors ${liked ? "fill-destructive text-destructive" : "text-foreground"}`} />
             </button>
           </div>
 
@@ -122,7 +123,7 @@ const EventCard = ({ event }: EventCardProps) => {
               <span className="text-xs text-muted-foreground font-body ml-1">{event.rating} ({event.ratingCount})</span>
             </div>
             <div className="flex items-center gap-1 text-xs font-body">
-              <Heart className={`h-3 w-3 ${event.liked ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+              <Heart className={`h-3 w-3 ${liked ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
               <span className="text-muted-foreground">{event.likes}</span>
             </div>
           </div>

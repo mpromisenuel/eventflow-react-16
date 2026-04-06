@@ -28,7 +28,7 @@ const fadeUp = {
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue, isFavorited, toggleFavorite } = useEvents();
+  const { getEvent, deleteEvent, toggleLike, isLiked, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue, isFavorited, toggleFavorite } = useEvents();
   const { user, isAgent } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -376,10 +376,10 @@ const EventDetail = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => toggleLike(event.id)}
-                  className={`font-body gap-2 ${event.liked ? "border-destructive text-destructive" : ""}`}
+                  className={`font-body gap-2 ${isLiked(event.id) ? "border-destructive text-destructive" : ""}`}
                 >
-                  <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
-                  {event.liked ? "Liked" : "Like"} ({event.likes})
+                  <Heart className={`h-4 w-4 ${isLiked(event.id) ? "fill-destructive" : ""}`} />
+                  {isLiked(event.id) ? "Liked" : "Like"} ({event.likes})
                 </Button>
                 {user && (
                   <Button
