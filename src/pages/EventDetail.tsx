@@ -376,10 +376,10 @@ const EventDetail = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => toggleLike(event.id)}
-                  className={`font-body gap-2 ${event.liked ? "border-destructive text-destructive" : ""}`}
+                  className={`font-body gap-2 ${isLiked(event.id) ? "border-destructive text-destructive" : ""}`}
                 >
-                  <Heart className={`h-4 w-4 ${event.liked ? "fill-destructive" : ""}`} />
-                  {event.liked ? "Liked" : "Like"} ({event.likes})
+                  <Heart className={`h-4 w-4 ${isLiked(event.id) ? "fill-destructive" : ""}`} />
+                  {isLiked(event.id) ? "Liked" : "Like"} ({event.likes})
                 </Button>
                 {user && (
                   <Button
