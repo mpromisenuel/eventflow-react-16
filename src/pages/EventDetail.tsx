@@ -28,7 +28,7 @@ const fadeUp = {
 
 const EventDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { getEvent, deleteEvent, toggleLike, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue, isFavorited, toggleFavorite } = useEvents();
+  const { getEvent, deleteEvent, toggleLike, isLiked, rateEvent, bookVenue, cancelBooking, isMyBooking, getBookingForVenue, isFavorited, toggleFavorite } = useEvents();
   const { user, isAgent } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
