@@ -146,6 +146,13 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (data) setReviews(data as Review[]);
   }, []);
 
+  // Fetch user likes
+  const fetchUserLikes = useCallback(async () => {
+    if (!user) { setUserLikes([]); return; }
+    const { data } = await supabase.from("user_likes").select("*").eq("user_id", user.id);
+    if (data) setUserLikes(data as UserLike[]);
+  }, [user]);
+
   useEffect(() => {
     fetchVenues().then(() => {
       fetchBookings();
@@ -155,7 +162,8 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     fetchFavorites();
-  }, [fetchFavorites]);
+    fetchUserLikes();
+  }, [fetchFavorites, fetchUserLikes]);
 
   const addEvent = useCallback(async (event: Omit<Event, "id">) => {
     if (!user) return;
