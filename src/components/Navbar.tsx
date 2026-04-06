@@ -56,13 +56,13 @@ const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <span className="hidden sm:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
+              <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden sm:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
                 {displayName}
                 {isAgent && (
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Agent</Badge>
                 )}
-              </span>
+              </Button>
               {isAgent && (
                 <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="font-body gap-1.5 text-xs">
                   <LayoutDashboard className="h-4 w-4" /> Dashboard
