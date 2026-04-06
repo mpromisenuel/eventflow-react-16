@@ -24,16 +24,56 @@ const fadeUp = {
   }),
 };
 
+const EmptyState = ({ icon: Icon, text }: { icon: any; text: string }) => (
+  <div className="text-center py-16">
+    <Icon className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+    <p className="text-muted-foreground font-body text-sm mb-4">{text}</p>
+    <Button asChild variant="outline" className="font-body">
+      <Link to="/events">Browse Venues</Link>
+    </Button>
+  </div>
+);
+
 const Profile = () => {
   const { user, profile, isAgent, refreshProfile } = useAuth();
-  const { events, bookings, favorites, reviews } = useEvents();
+  const { events, bookings, favorites, reviews, isLiked } = useEvents();
   const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState(profile?.full_name || "");
   const [saving, setSaving] = useState(false);
 
-  // Redirect if not logged in
+  const myBookings = useMemo(() => {
+    if (!user) return [];
+    return bookings
+      .filter(b => b.user_id === user.id)
+      .map(b => ({
+        ...b,
+        venue: events.find(e => e.id === b.venue_id),
+        isExpired: b.expires_at ? new Date(b.expires_at) < new Date() : false,
+      }))
+      .sort((a, b) => new Date(b.booked_at).getTime() - new Date(a.booked_at).getTime());
+  }, [bookings, events, user]);
+
+  const favoriteVenues = useMemo(() => {
+    if (!user) return [];
+    const ids = favorites.map(f => f.venue_id);
+    return events.filter(e => ids.includes(e.id));
+  }, [favorites, events, user]);
+
+  const likedVenues = useMemo(() => {
+    if (!user) return [];
+    return events.filter(e => isLiked(e.id));
+  }, [events, user, isLiked]);
+
+  const myReviews = useMemo(() => {
+    if (!user) return [];
+    return reviews
+      .filter(r => r.user_id === user.id)
+      .map(r => ({ ...r, venue: events.find(e => e.id === r.venue_id) }))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [reviews, events, user]);
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
@@ -62,34 +102,6 @@ const Profile = () => {
     }
     setSaving(false);
   };
-
-  // Derived data
-  const myBookings = useMemo(() => {
-    return bookings
-      .filter(b => b.user_id === user.id)
-      .map(b => ({
-        ...b,
-        venue: events.find(e => e.id === b.venue_id),
-        isExpired: b.expires_at ? new Date(b.expires_at) < new Date() : false,
-      }))
-      .sort((a, b) => new Date(b.booked_at).getTime() - new Date(a.booked_at).getTime());
-  }, [bookings, events, user.id]);
-
-  const favoriteVenues = useMemo(() => {
-    const ids = favorites.map(f => f.venue_id);
-    return events.filter(e => ids.includes(e.id));
-  }, [favorites, events]);
-
-  const likedVenues = useMemo(() => {
-    return events.filter(e => e.liked);
-  }, [events]);
-
-  const myReviews = useMemo(() => {
-    return reviews
-      .filter(r => r.user_id === user.id)
-      .map(r => ({ ...r, venue: events.find(e => e.id === r.venue_id) }))
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-  }, [reviews, events, user.id]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,7 +166,7 @@ const Profile = () => {
               { label: "Bookings", value: myBookings.length, icon: CalendarDays },
               { label: "Wishlist", value: favoriteVenues.length, icon: Bookmark },
               { label: "Reviews", value: myReviews.length, icon: Star },
-              { label: "Liked", value: favoriteVenues.length, icon: Heart },
+              { label: "Liked", value: likedVenues.length, icon: Heart },
             ].map(s => (
               <div key={s.label} className="text-center">
                 <s.icon className="h-4 w-4 text-primary mx-auto mb-1" />
@@ -182,7 +194,6 @@ const Profile = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Bookings Tab */}
           <TabsContent value="bookings">
             {myBookings.length > 0 ? (
               <div className="space-y-3">
@@ -229,7 +240,6 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          {/* Wishlist Tab */}
           <TabsContent value="wishlist">
             {favoriteVenues.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -244,7 +254,6 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          {/* Reviews Tab */}
           <TabsContent value="reviews">
             {myReviews.length > 0 ? (
               <div className="space-y-3">
@@ -273,11 +282,10 @@ const Profile = () => {
             )}
           </TabsContent>
 
-          {/* Likes Tab */}
           <TabsContent value="likes">
-            {favoriteVenues.length > 0 ? (
+            {likedVenues.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {favoriteVenues.map((e, i) => (
+                {likedVenues.map((e, i) => (
                   <motion.div key={e.id} variants={fadeUp} initial="hidden" animate="visible" custom={i}>
                     <EventCard event={e} />
                   </motion.div>
@@ -292,15 +300,5 @@ const Profile = () => {
     </div>
   );
 };
-
-const EmptyState = ({ icon: Icon, text }: { icon: any; text: string }) => (
-  <div className="text-center py-16">
-    <Icon className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
-    <p className="text-muted-foreground font-body text-sm mb-4">{text}</p>
-    <Button asChild variant="outline" className="font-body">
-      <Link to="/events">Browse Venues</Link>
-    </Button>
-  </div>
-);
 
 export default Profile;

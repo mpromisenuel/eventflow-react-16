@@ -15,6 +15,7 @@ import CreateEvent from "./pages/CreateEvent";
 import AgentDashboard from "./pages/AgentDashboard";
 import MyBookings from "./pages/MyBookings";
 import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/dashboard" element={<AgentDashboard />} />
               <Route path="/my-bookings" element={<MyBookings />} />
               <Route path="/favorites" element={<Favorites />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
