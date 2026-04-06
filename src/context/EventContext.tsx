@@ -19,6 +19,12 @@ interface Favorite {
   user_id: string;
 }
 
+interface UserLike {
+  id: string;
+  venue_id: string;
+  user_id: string;
+}
+
 interface Review {
   id: string;
   venue_id: string;
