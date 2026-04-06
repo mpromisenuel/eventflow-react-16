@@ -219,21 +219,21 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     [events]
   );
 
-  const toggleLike = useCallback((id: string) => {
-    setEvents((prev) =>
-      prev.map((e) =>
-        e.id === id
-          ? { ...e, liked: !e.liked, likes: e.liked ? e.likes - 1 : e.likes + 1 }
-          : e
-      )
-    );
-    // Persist like count
-    const event = events.find(e => e.id === id);
-    if (event) {
-      const newLikes = event.liked ? event.likes - 1 : event.likes + 1;
-      supabase.from("venues").update({ likes: newLikes }).eq("id", id).then();
+  const toggleLike = useCallback(async (id: string) => {
+    if (!user) return;
+    const existing = userLikes.find(l => l.venue_id === id);
+    if (existing) {
+      await supabase.from("user_likes").delete().eq("id", existing.id);
+    } else {
+      await supabase.from("user_likes").insert({ venue_id: id, user_id: user.id } as any);
     }
-  }, [events]);
+    // Refresh likes and venues to get updated count
+    await Promise.all([fetchUserLikes(), fetchVenues()]);
+  }, [user, userLikes, fetchUserLikes, fetchVenues]);
+
+  const isLiked = useCallback((id: string) => {
+    return userLikes.some(l => l.venue_id === id);
+  }, [userLikes]);
 
   const rateEvent = useCallback((id: string, rating: number) => {
     setEvents((prev) =>
