@@ -43,7 +43,8 @@ interface EventContextType {
   addEvent: (event: Omit<Event, "id">) => Promise<void>;
   deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
-  toggleLike: (id: string) => void;
+  toggleLike: (id: string) => Promise<void>;
+  isLiked: (id: string) => boolean;
   rateEvent: (id: string, rating: number) => void;
   bookVenue: (id: string) => Promise<boolean>;
   cancelBooking: (venueId: string) => Promise<boolean>;
