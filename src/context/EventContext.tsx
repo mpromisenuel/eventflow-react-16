@@ -347,7 +347,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <EventContext.Provider value={{
       events, loading, bookings, favorites, reviews,
       addEvent, deleteEvent, getEvent,
-      toggleLike, rateEvent, bookVenue, cancelBooking, getBookingForVenue, isMyBooking,
+      toggleLike, isLiked, rateEvent, bookVenue, cancelBooking, getBookingForVenue, isMyBooking,
       toggleFavorite, isFavorited,
       addReview, getReviewsForVenue, hasReviewed,
     }}>
