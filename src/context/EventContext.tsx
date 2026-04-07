@@ -234,7 +234,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (event.images !== undefined) updateData.images = event.images;
     updateData.updated_at = new Date().toISOString();
 
-    const { data, error } = await supabase.from("venues").update(updateData).eq("id", id).select().single();
+    const { data, error } = await supabase.from("venues").update(updateData as any).eq("id", id).select().single();
     if (error) return false;
     if (data) {
       setEvents((prev) => prev.map((e) => (e.id === id ? mapVenueToEvent(data) : e)));
