@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import EventDetail from "./pages/EventDetail";
 import Auth from "./pages/Auth";
 import CreateEvent from "./pages/CreateEvent";
+import EditEvent from "./pages/EditEvent";
 import AgentDashboard from "./pages/AgentDashboard";
 import MyBookings from "./pages/MyBookings";
 import Favorites from "./pages/Favorites";
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/event/:id" element={<EventDetail />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/create-event" element={<CreateEvent />} />
+              <Route path="/edit-event/:id" element={<EditEvent />} />
               <Route path="/dashboard" element={<AgentDashboard />} />
               <Route path="/my-bookings" element={<MyBookings />} />
               <Route path="/favorites" element={<Favorites />} />

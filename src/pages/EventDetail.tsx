@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import {
   ArrowLeft, CalendarDays, MapPin, Users, Trash2, Heart, Star, Bookmark,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Pencil,
   Phone, Globe, Building2, Tag, Clock, CheckCircle2, AlertCircle, Info, XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -515,15 +515,24 @@ const EventDetail = () => {
                 </div>
               )}
 
-              {/* Only agents or listing owner can delete */}
+              {/* Only agents or listing owner can edit/delete */}
               {user && isAgent && (
-                <Button
-                  variant="outline"
-                  className="w-full font-body text-destructive hover:bg-destructive/10"
-                  onClick={handleDelete}
-                >
-                  <Trash2 className="h-4 w-4 mr-2" /> Remove Listing
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    className="w-full font-body gap-2"
+                    onClick={() => navigate(`/edit-event/${event.id}`)}
+                  >
+                    <Pencil className="h-4 w-4" /> Edit Listing
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full font-body text-destructive hover:bg-destructive/10"
+                    onClick={handleDelete}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" /> Remove Listing
+                  </Button>
+                </div>
               )}
             </div>
           </motion.div>
