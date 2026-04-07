@@ -208,6 +208,40 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [user]);
 
+  const updateEvent = useCallback(async (id: string, event: Partial<Omit<Event, "id">>): Promise<boolean> => {
+    const updateData: Record<string, any> = {};
+    if (event.title !== undefined) updateData.title = event.title;
+    if (event.description !== undefined) updateData.description = event.description;
+    if (event.date !== undefined) updateData.date = event.date;
+    if (event.time !== undefined) updateData.time = event.time;
+    if (event.location !== undefined) updateData.location = event.location;
+    if (event.category !== undefined) updateData.category = event.category;
+    if (event.venueType !== undefined) updateData.venue_type = event.venueType;
+    if (event.maxAttendees !== undefined) updateData.max_attendees = event.maxAttendees;
+    if (event.price !== undefined) updateData.price = event.price;
+    if (event.address !== undefined) updateData.address = event.address;
+    if (event.city !== undefined) updateData.city = event.city;
+    if (event.region !== undefined) updateData.region = event.region;
+    if (event.propertyRef !== undefined) updateData.property_ref = event.propertyRef || null;
+    if (event.agentName !== undefined) updateData.agent_name = event.agentName || null;
+    if (event.agentPhone !== undefined) updateData.agent_phone = event.agentPhone || null;
+    if (event.agentWebsite !== undefined) updateData.agent_website = event.agentWebsite || null;
+    if (event.mapUrl !== undefined) updateData.map_url = event.mapUrl || null;
+    if (event.amenities !== undefined) updateData.amenities = event.amenities;
+    if (event.inclusions !== undefined) updateData.inclusions = event.inclusions;
+    if (event.extraFees !== undefined) updateData.extra_fees = event.extraFees;
+    if (event.image !== undefined) updateData.image = event.image;
+    if (event.images !== undefined) updateData.images = event.images;
+    updateData.updated_at = new Date().toISOString();
+
+    const { data, error } = await supabase.from("venues").update(updateData).eq("id", id).select().single();
+    if (error) return false;
+    if (data) {
+      setEvents((prev) => prev.map((e) => (e.id === id ? mapVenueToEvent(data) : e)));
+    }
+    return true;
+  }, []);
+
   const deleteEvent = useCallback(async (id: string) => {
     const { error } = await supabase.from("venues").delete().eq("id", id);
     if (!error) {
@@ -347,7 +381,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <EventContext.Provider value={{
       events, loading, bookings, favorites, reviews,
-      addEvent, deleteEvent, getEvent,
+      addEvent, updateEvent, deleteEvent, getEvent,
       toggleLike, isLiked, rateEvent, bookVenue, cancelBooking, getBookingForVenue, isMyBooking,
       toggleFavorite, isFavorited,
       addReview, getReviewsForVenue, hasReviewed,
