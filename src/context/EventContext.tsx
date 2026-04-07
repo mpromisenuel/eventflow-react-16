@@ -41,6 +41,7 @@ interface EventContextType {
   favorites: Favorite[];
   reviews: Review[];
   addEvent: (event: Omit<Event, "id">) => Promise<void>;
+  updateEvent: (id: string, event: Partial<Omit<Event, "id">>) => Promise<boolean>;
   deleteEvent: (id: string) => Promise<void>;
   getEvent: (id: string) => Event | undefined;
   toggleLike: (id: string) => Promise<void>;
