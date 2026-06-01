@@ -8,8 +8,10 @@ import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
-  { label: "About", to: "/about" },
   { label: "Venues", to: "/events" },
+  { label: "Availability", to: "/availability" },
+  { label: "Get Quote", to: "/quote" },
+  { label: "About", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
 
@@ -63,10 +65,18 @@ const Navbar = () => {
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Agent</Badge>
                 )}
               </Button>
-              {isAgent && (
-                <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="font-body gap-1.5 text-xs">
-                  <LayoutDashboard className="h-4 w-4" /> Dashboard
-                </Button>
+              {(isAgent || profile?.role === "admin") && (
+                <>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="font-body gap-1.5 text-xs">
+                    <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/pipeline")} className="font-body gap-1.5 text-xs">
+                    Pipeline
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/vendors")} className="font-body gap-1.5 text-xs">
+                    Vendors
+                  </Button>
+                </>
               )}
               <Button size="sm" variant="outline" onClick={() => navigate("/favorites")} className="font-body gap-1.5 text-xs">
                 <Bookmark className="h-4 w-4" /> Wishlist
