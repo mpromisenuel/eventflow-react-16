@@ -6,14 +6,15 @@ export const EVENT_TYPES = [
   { value: "social", label: "Social Gathering", baseMultiplier: 1.0 },
 ] as const;
 
-export const ADDONS = [
+type Addon = { id: string; label: string; price: number; perGuest?: boolean };
+export const ADDONS: Addon[] = [
   { id: "sound", label: "Sound System", price: 1500 },
   { id: "catering", label: "Catering (per guest)", price: 85, perGuest: true },
   { id: "decor", label: "Decorations", price: 2500 },
   { id: "photography", label: "Photography", price: 1800 },
   { id: "security", label: "Security Team", price: 1200 },
   { id: "lighting", label: "Stage Lighting", price: 900 },
-] as const;
+];
 
 export const TASK_TEMPLATES = [
   { title: "Send deposit invoice", offsetDays: -14 },
