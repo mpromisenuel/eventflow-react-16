@@ -16,35 +16,142 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          addons: Json
           booked_at: string
+          event_date: string | null
+          event_type: string | null
           expires_at: string | null
+          guest_count: number | null
           id: string
+          notes: string | null
           status: string
+          total_estimate: number
           user_id: string
           venue_id: string
+          workflow_status: string
         }
         Insert: {
+          addons?: Json
           booked_at?: string
+          event_date?: string | null
+          event_type?: string | null
           expires_at?: string | null
+          guest_count?: number | null
           id?: string
+          notes?: string | null
           status?: string
+          total_estimate?: number
           user_id: string
           venue_id: string
+          workflow_status?: string
         }
         Update: {
+          addons?: Json
           booked_at?: string
+          event_date?: string | null
+          event_type?: string | null
           expires_at?: string | null
+          guest_count?: number | null
           id?: string
+          notes?: string | null
           status?: string
+          total_estimate?: number
           user_id?: string
           venue_id?: string
+          workflow_status?: string
         }
         Relationships: [
           {
             foreignKeyName: "bookings_venue_id_fkey"
             columns: ["venue_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_tasks: {
+        Row: {
+          booking_id: string
+          completed: boolean
+          created_at: string
+          created_by: string
+          due_at: string | null
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          booking_id: string
+          completed?: boolean
+          created_at?: string
+          created_by: string
+          due_at?: string | null
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string
+          completed?: boolean
+          created_at?: string
+          created_by?: string
+          due_at?: string | null
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_tasks_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_vendors: {
+        Row: {
+          booking_id: string
+          created_at: string
+          created_by: string
+          id: string
+          role: string | null
+          vendor_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          role?: string | null
+          vendor_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          role?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_vendors_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_vendors_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -174,6 +281,45 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vendors: {
+        Row: {
+          category: string
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
         }
         Relationships: []
       }
