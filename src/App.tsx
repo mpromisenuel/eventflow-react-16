@@ -17,6 +17,10 @@ import AgentDashboard from "./pages/AgentDashboard";
 import MyBookings from "./pages/MyBookings";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
+import Quote from "./pages/Quote";
+import Availability from "./pages/Availability";
+import AdminKanban from "./pages/AdminKanban";
+import Vendors from "./pages/Vendors";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +46,10 @@ const App = () => (
               <Route path="/my-bookings" element={<MyBookings />} />
               <Route path="/favorites" element={<Favorites />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/quote" element={<Quote />} />
+              <Route path="/availability" element={<Availability />} />
+              <Route path="/admin/pipeline" element={<AdminKanban />} />
+              <Route path="/admin/vendors" element={<Vendors />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
