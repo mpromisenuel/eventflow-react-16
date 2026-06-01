@@ -26,7 +26,7 @@ export const TASK_TEMPLATES = [
   { title: "Final venue cleanup", offsetHours: 4 },
 ];
 
-export type AddonId = typeof ADDONS[number]["id"];
+export type AddonId = string;
 
 export function calcQuote(opts: { basePrice: number; eventType: string; guests: number; addonIds: string[] }) {
   const mult = EVENT_TYPES.find(t => t.value === opts.eventType)?.baseMultiplier ?? 1;
