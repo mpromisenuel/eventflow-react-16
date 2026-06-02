@@ -131,10 +131,23 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
-                {user && isAgent && (
-                  <Link to="/dashboard" className="text-sm text-primary font-medium py-2 flex items-center gap-2">
-                    <LayoutDashboard className="h-4 w-4" /> Dashboard
-                  </Link>
+                {user && (
+                  <>
+                    <Link to="/profile" className="text-sm py-2 flex items-center gap-2"><User className="h-4 w-4" /> Profile</Link>
+                    <Link to="/favorites" className="text-sm py-2 flex items-center gap-2"><Heart className="h-4 w-4" /> Wishlist</Link>
+                    <Link to="/my-bookings" className="text-sm py-2 flex items-center gap-2"><Calendar className="h-4 w-4" /> My Bookings</Link>
+                    <Link to="/create-event" className="text-sm py-2 flex items-center gap-2"><Plus className="h-4 w-4" /> List a Venue</Link>
+                    {(isAgent || isAdmin) && (
+                      <>
+                        <Link to="/dashboard" className="text-sm text-primary font-medium py-2 flex items-center gap-2"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
+                        <Link to="/admin/pipeline" className="text-sm py-2">Pipeline</Link>
+                        <Link to="/admin/vendors" className="text-sm py-2">Vendors</Link>
+                      </>
+                    )}
+                    {isSuperAdmin && (
+                      <Link to="/superadmin" className="text-sm text-primary font-medium py-2 flex items-center gap-2"><Shield className="h-4 w-4" /> Superadmin</Link>
+                    )}
+                  </>
                 )}
                 {user ? (
                   <button onClick={handleSignOut} className="text-sm text-destructive py-2 text-left">
