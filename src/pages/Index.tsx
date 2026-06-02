@@ -63,8 +63,8 @@ const Index = () => {
           transition={{ duration: 0.7 }}
           className="bg-primary flex flex-col justify-center px-8 md:px-16 py-16 lg:py-24 relative"
         >
-          <h1 className="font-display text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground leading-tight">
-            Find &amp; Rent<br />The Perfect Event<br />Venue
+          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground leading-tight">
+            Find &amp; Plan<br />An Event With<br />Lillytek Corporation
           </h1>
           <p className="text-primary-foreground/80 font-body mt-6 max-w-md text-base leading-relaxed">
             Discover stunning event spaces across Ghana — halls, beaches, gardens, rooftops and spacious grounds. List your venue or find the ideal rental for your next occasion.

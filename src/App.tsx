@@ -21,40 +21,45 @@ import Quote from "./pages/Quote";
 import Availability from "./pages/Availability";
 import AdminKanban from "./pages/AdminKanban";
 import Vendors from "./pages/Vendors";
+import SuperAdmin from "./pages/SuperAdmin";
 import NotFound from "./pages/NotFound";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <EventProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/contact" element={<Contact />} />
-              <Route path="/event/:id" element={<EventDetail />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/create-event" element={<CreateEvent />} />
-              <Route path="/edit-event/:id" element={<EditEvent />} />
-              <Route path="/dashboard" element={<AgentDashboard />} />
-              <Route path="/my-bookings" element={<MyBookings />} />
-              <Route path="/favorites" element={<Favorites />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/quote" element={<Quote />} />
-              <Route path="/availability" element={<Availability />} />
-              <Route path="/admin/pipeline" element={<AdminKanban />} />
-              <Route path="/admin/vendors" element={<Vendors />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </EventProvider>
-      </AuthProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <EventProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/event/:id" element={<EventDetail />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/create-event" element={<CreateEvent />} />
+                <Route path="/edit-event/:id" element={<EditEvent />} />
+                <Route path="/dashboard" element={<AgentDashboard />} />
+                <Route path="/my-bookings" element={<MyBookings />} />
+                <Route path="/favorites" element={<Favorites />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/quote" element={<Quote />} />
+                <Route path="/availability" element={<Availability />} />
+                <Route path="/admin/pipeline" element={<AdminKanban />} />
+                <Route path="/admin/vendors" element={<Vendors />} />
+                <Route path="/superadmin" element={<SuperAdmin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </EventProvider>
+        </AuthProvider>
+      </ErrorBoundary>
     </TooltipProvider>
   </QueryClientProvider>
 );
