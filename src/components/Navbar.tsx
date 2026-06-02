@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard, Bookmark } from "lucide-react";
+import { CalendarDays, Menu, LogIn, LogOut, User, Plus, LayoutDashboard, Bookmark, Shield, Heart, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -18,11 +18,15 @@ const navLinks = [
 const Navbar = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { user, profile, isAgent, signOut } = useAuth();
+  const { user, profile, isAgent, isAdmin, isSuperAdmin, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
+    try {
+      await signOut();
+      navigate("/");
+    } catch (e: any) {
+      console.error(e);
+    }
   };
 
   const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email;
@@ -55,39 +59,47 @@ const Navbar = () => {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {user ? (
             <>
-              <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden sm:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
+              <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden lg:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
                 <User className="h-3.5 w-3.5" />
                 {displayName}
-                {isAgent && (
+                {isSuperAdmin && (
+                  <Badge variant="default" className="text-[10px] px-1.5 py-0">Super</Badge>
+                )}
+                {!isSuperAdmin && isAgent && (
                   <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Agent</Badge>
                 )}
               </Button>
-              {(isAgent || profile?.role === "admin") && (
+              {isSuperAdmin && (
+                <Button size="sm" variant="default" onClick={() => navigate("/superadmin")} className="hidden md:flex font-body gap-1.5 text-xs">
+                  <Shield className="h-4 w-4" /> Superadmin
+                </Button>
+              )}
+              {(isAgent || isAdmin) && (
                 <>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="font-body gap-1.5 text-xs">
+                  <Button size="sm" variant="outline" onClick={() => navigate("/dashboard")} className="hidden md:flex font-body gap-1.5 text-xs">
                     <LayoutDashboard className="h-4 w-4" /> Dashboard
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/pipeline")} className="font-body gap-1.5 text-xs">
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/pipeline")} className="hidden lg:flex font-body gap-1.5 text-xs">
                     Pipeline
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/vendors")} className="font-body gap-1.5 text-xs">
+                  <Button size="sm" variant="outline" onClick={() => navigate("/admin/vendors")} className="hidden lg:flex font-body gap-1.5 text-xs">
                     Vendors
                   </Button>
                 </>
               )}
-              <Button size="sm" variant="outline" onClick={() => navigate("/favorites")} className="font-body gap-1.5 text-xs">
+              <Button size="sm" variant="outline" onClick={() => navigate("/favorites")} className="hidden md:flex font-body gap-1.5 text-xs">
                 <Bookmark className="h-4 w-4" /> Wishlist
               </Button>
-              <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="font-body gap-1.5 text-xs">
+              <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="hidden md:flex font-body gap-1.5 text-xs">
                 <CalendarDays className="h-4 w-4" /> My Bookings
               </Button>
-              <Button size="sm" onClick={() => navigate("/create-event")} className="font-body gap-1.5 text-xs">
+              <Button size="sm" onClick={() => navigate("/create-event")} className="hidden sm:flex font-body gap-1.5 text-xs">
                 <Plus className="h-4 w-4" /> List a Venue
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleSignOut} className="font-body gap-1.5 text-xs">
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden sm:flex font-body gap-1.5 text-xs">
                 <LogOut className="h-4 w-4" /> Sign Out
               </Button>
             </>
