@@ -2,7 +2,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
-type AppRole = "admin" | "agent" | "user";
+type AppRole = "superadmin" | "admin" | "agent" | "user" | "client";
+
+export const SUPERADMIN_EMAIL = "mpromisenuel@gmail.com";
 
 interface Profile {
   id: string;
@@ -20,6 +22,7 @@ interface AuthContextType {
   loading: boolean;
   isAgent: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   signUp: (email: string, password: string, fullName: string, asAgent?: boolean) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
