@@ -118,10 +118,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const isAgent = roles.includes("agent");
-  const isAdmin = roles.includes("admin");
+  const isAdmin = roles.includes("admin") || roles.includes("superadmin");
+  const isSuperAdmin = roles.includes("superadmin") || (user?.email === SUPERADMIN_EMAIL);
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, roles, loading, isAgent, isAdmin, signUp, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, roles, loading, isAgent, isAdmin, isSuperAdmin, signUp, signIn, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );
