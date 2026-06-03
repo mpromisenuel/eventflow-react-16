@@ -18,6 +18,7 @@ import MyBookings from "./pages/MyBookings";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Quote from "./pages/Quote";
+import PlanMyEvent from "./pages/PlanMyEvent";
 import Availability from "./pages/Availability";
 import AdminKanban from "./pages/AdminKanban";
 import Vendors from "./pages/Vendors";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/quote" element={<Quote />} />
+                <Route path="/plan-my-event" element={<PlanMyEvent />} />
                 <Route path="/availability" element={<Availability />} />
                 <Route path="/admin/pipeline" element={<AdminKanban />} />
                 <Route path="/admin/vendors" element={<Vendors />} />
