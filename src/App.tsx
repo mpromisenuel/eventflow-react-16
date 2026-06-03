@@ -51,6 +51,7 @@ const App = () => (
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/quote" element={<Quote />} />
+                <Route path="/plan-my-event" element={<PlanMyEvent />} />
                 <Route path="/availability" element={<Availability />} />
                 <Route path="/admin/pipeline" element={<AdminKanban />} />
                 <Route path="/admin/vendors" element={<Vendors />} />
