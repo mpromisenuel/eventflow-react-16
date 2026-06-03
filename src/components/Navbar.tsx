@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
+import ThemeToggle from "@/components/ThemeToggle";
+
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Venues", to: "/events" },
-  { label: "Availability", to: "/availability" },
   { label: "Plan Event", to: "/plan-my-event" },
   { label: "Get Quote", to: "/quote" },
   { label: "About", to: "/about" },
