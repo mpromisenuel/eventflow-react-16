@@ -1,171 +1,220 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useEvents } from "@/context/EventContext";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
-import EventCard from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import {
-  CalendarDays, Plus, LayoutGrid, Building2, Users, MapPin, BarChart3,
+  CalendarDays, Plus, Trash2, Users, Sparkles, CalendarPlus,
 } from "lucide-react";
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number = 0) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.1, duration: 0.5 },
-  }),
+type PlannedEvent = {
+  id: string;
+  event_type: string | null;
+  event_date: string | null;
+  guest_count: number | null;
+  workflow_status: string | null;
+  total_estimate: number | null;
+  notes: string | null;
+  addons: any;
+  venue_id: string;
+  venues?: { title: string | null } | null;
+};
+
+const statusColor: Record<string, string> = {
+  inquiry: "bg-muted text-foreground",
+  basic: "bg-blue-500/15 text-blue-600 dark:text-blue-400",
+  design: "bg-purple-500/15 text-purple-600 dark:text-purple-400",
+  catering: "bg-amber-500/15 text-amber-600 dark:text-amber-400",
+  service: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400",
+  confirmed: "bg-primary/15 text-primary",
+  completed: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+  cancelled: "bg-destructive/15 text-destructive",
 };
 
 const AgentDashboard = () => {
-  const { events, bookings } = useEvents();
   const { user, profile } = useAuth();
+  const [events, setEvents] = useState<PlannedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<PlannedEvent | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  // In a full app, venues would be filtered by agent_user_id
-  // For now, show all venues as manageable by agents
-  const myVenues = events;
-  const activeBookings = bookings.filter(b => b.status === "active");
-  const totalRevenue = myVenues.reduce((sum, v) => {
-    const isBooked = bookings.some(b => b.venue_id === v.id && b.status === "active");
-    return sum + (isBooked ? v.price : 0);
-  }, 0);
+  const fetchEvents = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("id, event_type, event_date, guest_count, workflow_status, total_estimate, notes, addons, venue_id, venues(title)")
+        .order("event_date", { ascending: true, nullsFirst: false });
+      if (error) throw error;
+      setEvents((data as any) || []);
+    } catch (e: any) {
+      toast.error("Failed to load events", { description: e.message });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const stats = [
-    { icon: Building2, label: "Total Venues", value: myVenues.length },
-    { icon: CalendarDays, label: "Active Bookings", value: activeBookings.length },
-    { icon: BarChart3, label: "Revenue (GHS)", value: totalRevenue.toLocaleString() },
-    { icon: Users, label: "Total Capacity", value: myVenues.reduce((s, v) => s + v.maxAttendees, 0) },
-  ];
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    const target = pendingDelete;
+    // Optimistic removal
+    setEvents((prev) => prev.filter((e) => e.id !== target.id));
+    setPendingDelete(null);
+    try {
+      const { error } = await supabase.from("bookings").delete().eq("id", target.id);
+      if (error) throw error;
+      toast.success("Event successfully removed.");
+    } catch (e: any) {
+      toast.error("Could not delete event", { description: e.message });
+      // Rollback
+      fetchEvents();
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const eventName = (e: PlannedEvent) =>
+    (e.addons?.eventName as string) || e.venues?.title || e.event_type || "Untitled Event";
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       <div className="container mx-auto px-4 py-10">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex items-center justify-between flex-wrap gap-4"
         >
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="font-display text-3xl font-bold text-foreground">
-                Agent Dashboard
-              </h1>
-              <p className="text-muted-foreground font-body text-sm mt-1">
-                Welcome back, {profile?.full_name || "Agent"}
-              </p>
-            </div>
+          <div>
+            <h1 className="font-display text-3xl font-bold text-foreground">
+              Planned Events
+            </h1>
+            <p className="text-muted-foreground font-body text-sm mt-1">
+              Welcome back, {profile?.full_name || user?.email || "Agent"}
+            </p>
+          </div>
+          <Button asChild className="font-body gap-2">
+            <Link to="/plan-my-event">
+              <Plus className="h-4 w-4" /> Plan New Event
+            </Link>
+          </Button>
+        </motion.div>
+
+        {loading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-48 w-full rounded-xl" />
+            ))}
+          </div>
+        ) : events.length === 0 ? (
+          <div className="text-center py-20 border border-dashed border-border rounded-xl">
+            <Sparkles className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground font-body mb-4">No events planned yet</p>
             <Button asChild className="font-body gap-2">
-              <Link to="/create-event">
-                <Plus className="h-4 w-4" /> List New Venue
+              <Link to="/plan-my-event">
+                <CalendarPlus className="h-4 w-4" /> Plan Your First Event
               </Link>
             </Button>
           </div>
-        </motion.div>
-
-        {/* Stats */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              custom={i}
-              className="rounded-xl border border-border bg-card p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <stat.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-display font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground font-body">{stat.label}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Recent Bookings */}
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={4}
-          className="mb-10"
-        >
-          <h2 className="font-display text-xl font-semibold mb-4">Recent Bookings</h2>
-          {activeBookings.length > 0 ? (
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm font-body">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="text-left p-3 font-medium">Venue</th>
-                    <th className="text-left p-3 font-medium">Booked At</th>
-                    <th className="text-left p-3 font-medium">Expires</th>
-                    <th className="text-left p-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activeBookings.map((b) => {
-                    const venue = events.find(e => e.id === b.venue_id);
-                    const isExpired = b.expires_at && new Date(b.expires_at) < new Date();
-                    return (
-                      <tr key={b.id} className="border-t border-border">
-                        <td className="p-3">
-                          <Link to={`/event/${b.venue_id}`} className="text-primary hover:underline">
-                            {venue?.title || b.venue_id}
-                          </Link>
-                        </td>
-                        <td className="p-3 text-muted-foreground">
-                          {new Date(b.booked_at).toLocaleDateString()}
-                        </td>
-                        <td className="p-3 text-muted-foreground">
-                          {b.expires_at ? new Date(b.expires_at).toLocaleDateString() : "—"}
-                        </td>
-                        <td className="p-3">
-                          <Badge variant={isExpired ? "destructive" : "secondary"} className="text-xs">
-                            {isExpired ? "Expired" : "Active"}
-                          </Badge>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-muted-foreground font-body text-sm">No active bookings yet.</p>
-          )}
-        </motion.div>
-
-        {/* My Venues */}
-        <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={5}>
-          <h2 className="font-display text-xl font-semibold mb-4">My Venues</h2>
-          {myVenues.length > 0 ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {myVenues.map((event, i) => (
-                <motion.div key={event.id} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i}>
-                  <EventCard event={event} />
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 border border-dashed border-border rounded-xl">
-              <Building2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground font-body mb-4">You haven't listed any venues yet</p>
-              <Button asChild className="font-body gap-2">
-                <Link to="/create-event"><Plus className="h-4 w-4" /> List Your First Venue</Link>
-              </Button>
-            </div>
-          )}
-        </motion.div>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {events.map((e) => {
+              const status = (e.workflow_status || "inquiry").toLowerCase();
+              return (
+                <Card key={e.id} className="flex flex-col">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <CardTitle className="text-lg font-display line-clamp-2">
+                        {eventName(e)}
+                      </CardTitle>
+                      <Badge className={`${statusColor[status] || statusColor.inquiry} capitalize border-0`}>
+                        {status}
+                      </Badge>
+                    </div>
+                    {e.event_type && (
+                      <p className="text-xs text-muted-foreground font-body capitalize">
+                        {e.event_type}
+                      </p>
+                    )}
+                  </CardHeader>
+                  <CardContent className="space-y-2 flex-1 text-sm font-body">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <CalendarDays className="h-4 w-4" />
+                      {e.event_date ? new Date(e.event_date).toLocaleDateString() : "Date TBD"}
+                    </div>
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      {e.guest_count ? `${e.guest_count} guests` : "Guest count TBD"}
+                    </div>
+                    {e.total_estimate ? (
+                      <div className="text-xs text-muted-foreground">
+                        Est. GHS {Number(e.total_estimate).toLocaleString()}
+                      </div>
+                    ) : null}
+                    <div className="pt-3">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 gap-1.5 px-2"
+                        onClick={() => setPendingDelete(e)}
+                      >
+                        <Trash2 className="h-4 w-4" /> Delete Event
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this event?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you absolutely sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {pendingDelete ? eventName(pendingDelete) : ""}
+              </span>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Confirm Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
