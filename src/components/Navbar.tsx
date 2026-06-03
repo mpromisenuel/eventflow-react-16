@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 
+import ThemeToggle from "@/components/ThemeToggle";
+
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Venues", to: "/events" },
-  { label: "Availability", to: "/availability" },
   { label: "Plan Event", to: "/plan-my-event" },
   { label: "Get Quote", to: "/quote" },
   { label: "About", to: "/about" },
@@ -61,6 +62,7 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-2 md:gap-3">
+          <ThemeToggle />
           {user ? (
             <>
               <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden lg:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
