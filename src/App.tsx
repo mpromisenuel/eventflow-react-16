@@ -18,6 +18,7 @@ import MyBookings from "./pages/MyBookings";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import Quote from "./pages/Quote";
+import PlanMyEvent from "./pages/PlanMyEvent";
 import Availability from "./pages/Availability";
 import AdminKanban from "./pages/AdminKanban";
 import Vendors from "./pages/Vendors";
