@@ -4,7 +4,7 @@ import type { User, Session } from "@supabase/supabase-js";
 
 type AppRole = "superadmin" | "admin" | "agent" | "user" | "client";
 
-export const SUPERADMIN_EMAIL = "mpromisenuel@gmail.com";
+export const SUPERADMIN_EMAIL = "davitorlele@gmail.com";
 
 interface Profile {
   id: string;
@@ -119,7 +119,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAgent = roles.includes("agent");
   const isAdmin = roles.includes("admin") || roles.includes("superadmin");
-  const isSuperAdmin = roles.includes("superadmin") || (user?.email === SUPERADMIN_EMAIL);
+  const isSuperAdmin = roles.includes("superadmin") || (user?.email?.toLowerCase() === SUPERADMIN_EMAIL.toLowerCase());
 
   return (
     <AuthContext.Provider value={{ user, session, profile, roles, loading, isAgent, isAdmin, isSuperAdmin, signUp, signIn, signOut, refreshProfile }}>
