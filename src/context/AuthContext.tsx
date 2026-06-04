@@ -4,7 +4,7 @@ import type { User, Session } from "@supabase/supabase-js";
 
 type AppRole = "superadmin" | "admin" | "agent" | "user" | "client";
 
-export const SUPERADMIN_EMAIL = "mpromisenuel@gmail.com";
+export const SUPERADMIN_EMAIL = "davitorlele@gmail.com";
 
 interface Profile {
   id: string;
