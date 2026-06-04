@@ -64,7 +64,7 @@ const Index = () => {
           className="bg-primary flex flex-col justify-center px-8 md:px-16 py-16 lg:py-24 relative"
         >
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground leading-tight">
-            Find &amp; Plan<br />An Event With<br />Lillytek Corporation
+            Lilly's<br />Event Hub
           </h1>
           <p className="text-primary-foreground/80 font-body mt-6 max-w-md text-base leading-relaxed">
             Discover stunning event spaces across Ghana — halls, beaches, gardens, rooftops and spacious grounds. List your venue or find the ideal rental for your next occasion.
@@ -73,10 +73,10 @@ const Index = () => {
             <Button variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 gap-2 font-body">
               <Clock className="h-4 w-4" /> How it works
             </Button>
-            <button className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors font-body text-sm group">
+            <Link to="/events" className="flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground transition-colors font-body text-sm group">
               Browse Venues
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </Link>
           </div>
           <div className="absolute bottom-0 right-0 flex bg-accent text-accent-foreground rounded-tl-xl overflow-hidden">
             {stats.map((stat, i) => (
