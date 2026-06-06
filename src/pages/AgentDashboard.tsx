@@ -99,8 +99,8 @@ const AgentDashboard = () => {
     try {
       const { data, error } = await supabase
         .from("bookings")
-        .select("id, event_type, event_date, guest_count, workflow_status, total_estimate, notes, addons, venue_id, venues(title)")
-        .order("event_date", { ascending: true, nullsFirst: false });
+        .select("id, event_type, event_date, guest_count, workflow_status, total_estimate, notes, addons, venue_id, venues!left(title)")
+        .order("created_at", { ascending: false });
       if (error) throw error;
       setEvents((data as any) || []);
     } catch (e: any) {
