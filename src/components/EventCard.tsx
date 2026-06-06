@@ -16,6 +16,7 @@ interface EventCardProps {
 const EventCard = ({ event }: EventCardProps) => {
   const { toggleLike, isFavorited, toggleFavorite, getBookingForVenue, isLiked } = useEvents();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentImage, setCurrentImage] = useState(0);
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
