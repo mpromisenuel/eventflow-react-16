@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CalendarDays, MapPin, Users, Heart, Star, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 import { format } from "date-fns";
 import { Event, categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface EventCardProps {
   event: Event;
@@ -15,6 +16,7 @@ interface EventCardProps {
 const EventCard = ({ event }: EventCardProps) => {
   const { toggleLike, isFavorited, toggleFavorite, getBookingForVenue, isLiked } = useEvents();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [currentImage, setCurrentImage] = useState(0);
   const images = event.images?.length > 0 ? event.images : [event.image];
   const eventDate = new Date(event.date + "T" + event.time);
@@ -48,8 +50,16 @@ const EventCard = ({ event }: EventCardProps) => {
     if (user) toggleFavorite(event.id);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      toast.error("Please sign in to view venue details");
+      navigate("/auth");
+    }
+  };
+
   return (
-    <Link to={`/event/${event.id}`} className="group block">
+    <Link to={`/event/${event.id}`} onClick={handleCardClick} className="group block">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
         <div className="relative h-48 overflow-hidden">
           <AnimatePresence mode="wait">
