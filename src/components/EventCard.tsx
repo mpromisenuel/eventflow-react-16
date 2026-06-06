@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { CalendarDays, MapPin, Users, Heart, Star, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 import { format } from "date-fns";
 import { Event, categoryColors, categoryLabels, venueTypeLabels } from "@/lib/types";
@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEvents } from "@/context/EventContext";
 import { useAuth } from "@/context/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 interface EventCardProps {
   event: Event;
