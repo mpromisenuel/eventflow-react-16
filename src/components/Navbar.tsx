@@ -98,8 +98,8 @@ const Navbar = () => {
               <Button size="sm" variant="outline" onClick={() => navigate("/my-bookings")} className="hidden md:flex font-body gap-1.5 text-xs">
                 <CalendarDays className="h-4 w-4" /> My Bookings
               </Button>
-              <Button size="sm" onClick={() => navigate("/create-event")} className="hidden sm:flex font-body gap-1.5 text-xs">
-                <Plus className="h-4 w-4" /> List a Venue
+              <Button size="sm" onClick={() => navigate("/plan-my-event")} className="hidden sm:flex font-body gap-1.5 text-xs">
+                <Plus className="h-4 w-4" /> Plan New Event
               </Button>
               <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden sm:flex font-body gap-1.5 text-xs">
                 <LogOut className="h-4 w-4" /> Sign Out
@@ -138,7 +138,7 @@ const Navbar = () => {
                     <Link to="/profile" className="text-sm py-2 flex items-center gap-2"><User className="h-4 w-4" /> Profile</Link>
                     <Link to="/favorites" className="text-sm py-2 flex items-center gap-2"><Heart className="h-4 w-4" /> Wishlist</Link>
                     <Link to="/my-bookings" className="text-sm py-2 flex items-center gap-2"><Calendar className="h-4 w-4" /> My Bookings</Link>
-                    <Link to="/create-event" className="text-sm py-2 flex items-center gap-2"><Plus className="h-4 w-4" /> List a Venue</Link>
+                    <Link to="/plan-my-event" className="text-sm py-2 flex items-center gap-2"><Plus className="h-4 w-4" /> Plan New Event</Link>
                     {(isAgent || isAdmin) && (
                       <>
                         <Link to="/dashboard" className="text-sm text-primary font-medium py-2 flex items-center gap-2"><LayoutDashboard className="h-4 w-4" /> Dashboard</Link>
