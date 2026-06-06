@@ -51,7 +51,16 @@ const EventCard = ({ event }: EventCardProps) => {
   };
 
   return (
-    <Link to={`/event/${event.id}`} className="group block">
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault();
+      toast.error("Please sign in to view venue details");
+      navigate("/auth");
+    }
+  };
+
+  return (
+    <Link to={`/event/${event.id}`} onClick={handleCardClick} className="group block">
       <div className="overflow-hidden rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1">
         <div className="relative h-48 overflow-hidden">
           <AnimatePresence mode="wait">
