@@ -64,7 +64,7 @@ const Index = () => {
           className="bg-primary flex flex-col justify-center px-8 md:px-16 py-16 lg:py-24 relative"
         >
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground leading-tight">
-            Lilly's<br />Event Hub
+            Plan an event<br />with JEP Service
           </h1>
           <p className="text-primary-foreground/80 font-body mt-6 max-w-md text-base leading-relaxed">
             Discover stunning event spaces across Ghana — halls, beaches, gardens, rooftops and spacious grounds. List your venue or find the ideal rental for your next occasion.
