@@ -50,7 +50,6 @@ const EventCard = ({ event }: EventCardProps) => {
     if (user) toggleFavorite(event.id);
   };
 
-  return (
   const handleCardClick = (e: React.MouseEvent) => {
     if (!user) {
       e.preventDefault();
