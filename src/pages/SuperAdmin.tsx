@@ -199,6 +199,38 @@ const SuperAdmin = () => {
     }
   };
 
+  const makeSuperadmin = async (uid: string, email: string | null) => {
+    if (!confirm(`Promote ${email || "this user"} to SUPERADMIN? They will have full control.`)) return;
+    try {
+      const { error } = await supabase.from("user_roles").insert({ user_id: uid, role: "superadmin" as any });
+      if (error && !String(error.message).includes("duplicate")) throw error;
+      // also grant admin
+      await supabase.from("user_roles").insert({ user_id: uid, role: "admin" as any });
+      toast.success(`${email} is now a Superadmin`);
+      fetchAll();
+    } catch (e: any) {
+      toast.error("Promotion failed", { description: e?.message });
+    }
+  };
+
+  const deleteMyAccount = async () => {
+    if (!user) return;
+    if (!confirm("Delete your Superadmin account? This action cannot be undone.")) return;
+    if (user.email?.toLowerCase() === "davitorlele@gmail.com") {
+      return toast.error("Root superadmin account cannot be deleted from here.");
+    }
+    try {
+      // remove role rows + profile row; auth user deletion needs service role/backend
+      await supabase.from("user_roles").delete().eq("user_id", user.id);
+      await supabase.from("profiles").delete().eq("id", user.id);
+      await supabase.auth.signOut();
+      toast.success("Superadmin account removed. Signing out.");
+      navigate("/", { replace: true });
+    } catch (e: any) {
+      toast.error("Could not delete account", { description: e?.message });
+    }
+  };
+
   // Pipeline: change stage with optimistic update
   const changeStage = async (b: Bk, newStatus: string, friendly: string) => {
     const prev = b.workflow_status;
