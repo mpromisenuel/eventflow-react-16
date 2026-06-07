@@ -228,14 +228,14 @@ const Events = () => {
       <footer className="border-t border-border bg-foreground text-background">
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">Eventful Rentals</span></div>
+            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">JEP Event Service</span></div>
             <div className="flex gap-8 text-sm font-body opacity-70">
               <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
               <Link to="/about" className="hover:opacity-100 transition-opacity">About</Link>
               <Link to="/events" className="hover:opacity-100 transition-opacity">Venues</Link>
               <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
-            <p className="text-xs font-body opacity-50">© 2026 Eventful Rentals. All rights reserved.</p>
+            <p className="text-xs font-body opacity-50">© 2026 JEP Event Service. All rights reserved.</p>
           </div>
         </div>
       </footer>

@@ -38,7 +38,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
           <span className="font-display text-xl font-bold text-foreground">
-            Eventful Rentals
+            JEP Event Service
           </span>
         </Link>
 

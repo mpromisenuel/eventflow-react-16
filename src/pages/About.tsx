@@ -30,7 +30,7 @@ const About = () => {
       <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} className="bg-primary py-20 md:py-28">
         <div className="container mx-auto px-4 text-center">
           <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-display text-4xl md:text-5xl xl:text-6xl font-bold text-primary-foreground">
-            About Eventful Rentals
+            About JEP Event Service
           </motion.h1>
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="text-primary-foreground/80 font-body mt-4 max-w-2xl mx-auto text-base leading-relaxed">
             We're Ghana's go-to marketplace for discovering and advertising event rental venues. Whether you own a stunning beachfront, a spacious garden, or a modern hall — we help you reach the right audience.
@@ -43,7 +43,7 @@ const About = () => {
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <h2 className="font-display text-2xl md:text-3xl font-semibold mb-4">Our Story</h2>
             <p className="text-muted-foreground font-body leading-relaxed mb-4">
-              Founded in 2024, Eventful Rentals started with a simple idea: finding the perfect event venue in Ghana shouldn't be a hassle. We saw venue owners struggling to reach the right audience and event organisers spending hours searching for the right space.
+              Founded in 2024, JEP Event Service started with a simple idea: finding the perfect event venue in Ghana shouldn't be a hassle. We saw venue owners struggling to reach the right audience and event organisers spending hours searching for the right space.
             </p>
             <p className="text-muted-foreground font-body leading-relaxed mb-4">
               Today, we connect hundreds of venue owners with thousands of renters — from wedding planners to corporate event organisers — making it easy to find, compare, and book event spaces across the country.
@@ -98,7 +98,7 @@ const About = () => {
       <motion.section initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="bg-primary">
         <div className="container mx-auto px-4 py-16 text-center">
           <h2 className="font-display text-2xl md:text-3xl font-semibold text-primary-foreground mb-4">Have a Venue? List It Today</h2>
-          <p className="text-primary-foreground/70 font-body mb-6 max-w-md mx-auto text-sm">Join hundreds of venue owners who trust Eventful Rentals to connect them with the right renters.</p>
+          <p className="text-primary-foreground/70 font-body mb-6 max-w-md mx-auto text-sm">Join hundreds of venue owners who trust JEP Event Service to connect them with the right renters.</p>
           <Button variant="secondary" className="font-body gap-2" asChild>
             <Link to="/events">Browse Venues <ArrowRight className="h-4 w-4" /></Link>
           </Button>
@@ -108,14 +108,14 @@ const About = () => {
       <footer className="border-t border-border bg-foreground text-background">
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">Eventful Rentals</span></div>
+            <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5" /><span className="font-display text-lg font-bold">JEP Event Service</span></div>
             <div className="flex gap-8 text-sm font-body opacity-70">
               <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
               <Link to="/about" className="hover:opacity-100 transition-opacity">About</Link>
               <Link to="/events" className="hover:opacity-100 transition-opacity">Venues</Link>
               <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
-            <p className="text-xs font-body opacity-50">© 2026 Eventful Rentals. All rights reserved.</p>
+            <p className="text-xs font-body opacity-50">© 2026 JEP Event Service. All rights reserved.</p>
           </div>
         </div>
       </footer>
