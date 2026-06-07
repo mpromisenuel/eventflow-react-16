@@ -63,6 +63,7 @@ const Navbar = () => {
 
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
+          {user && <NotificationBell />}
           {user ? (
             <>
               <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden lg:flex items-center gap-1.5 text-xs font-body text-muted-foreground">
