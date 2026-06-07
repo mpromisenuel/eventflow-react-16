@@ -55,16 +55,24 @@ interface Bk {
   addons: any;
 }
 
-type StageKey = "get_quote" | "customized" | "active" | "completed";
+type StageKey = "pending_review" | "get_quote" | "customized" | "active" | "completed";
 
 const STAGES: { key: StageKey; label: string; accent: string; ring: string; chip: string; match: string[] }[] = [
   {
+    key: "pending_review",
+    label: "Pending Admin Review",
+    accent: "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900",
+    ring: "ring-yellow-300/60",
+    chip: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-900 dark:text-yellow-200",
+    match: ["pending_review", "pending"],
+  },
+  {
     key: "get_quote",
-    label: "Get Quote",
+    label: "Approved / Quote",
     accent: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900",
     ring: "ring-amber-300/60",
     chip: "bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200",
-    match: ["inquiry", "get_quote", "quote"],
+    match: ["inquiry", "get_quote", "quote", "approved"],
   },
   {
     key: "customized",
@@ -95,7 +103,7 @@ const STAGES: { key: StageKey; label: string; accent: string; ring: string; chip
 const toStage = (status: string): StageKey => {
   const s = (status || "").toLowerCase();
   const found = STAGES.find((st) => st.match.includes(s));
-  return found?.key ?? "get_quote";
+  return found?.key ?? "pending_review";
 };
 
 const AESTHETICS = ["Modern Minimal", "Classic Elegant", "Boho Chic", "Rustic Garden", "Black Tie Glam", "Tropical"];
