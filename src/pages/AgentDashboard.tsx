@@ -82,7 +82,7 @@ const lifecycleLabel: Record<Lifecycle, string> = {
 };
 
 const AgentDashboard = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, isAdmin } = useAuth();
   const [events, setEvents] = useState<PlannedEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingDelete, setPendingDelete] = useState<PlannedEvent | null>(null);
@@ -228,8 +228,23 @@ const AgentDashboard = () => {
           </Button>
         </motion.div>
 
+        <Tabs defaultValue="events" className="w-full">
+          <TabsList className="grid grid-cols-2 sm:inline-flex sm:w-auto w-full mb-4">
+            <TabsTrigger value="events" className="gap-1.5">
+              <CalendarDays className="h-4 w-4" /> Events
+            </TabsTrigger>
+            <TabsTrigger value="tickets" className="gap-1.5">
+              <Ticket className="h-4 w-4" /> My Tickets
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tickets">
+            <TicketsPanel />
+          </TabsContent>
+
+          <TabsContent value="events">
         {loading ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="h-48 w-full rounded-xl" />
             ))}
@@ -245,9 +260,10 @@ const AgentDashboard = () => {
             </Button>
           </div>
         ) : (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {events.map((e) => {
               const lc = toLifecycle(e.workflow_status);
+              const isPendingReview = (e.workflow_status || "").toLowerCase() === "pending_review";
               return (
                 <Card key={e.id} className="flex flex-col">
                   <CardHeader className="pb-3">
@@ -256,7 +272,7 @@ const AgentDashboard = () => {
                         {eventName(e)}
                       </CardTitle>
                       <Badge className={`${lifecycleStyles[lc]} border-0 whitespace-nowrap`}>
-                        {lifecycleLabel[lc]}
+                        {isPendingReview ? "Pending Review" : lifecycleLabel[lc]}
                       </Badge>
                     </div>
                     {e.event_type && (
@@ -279,6 +295,25 @@ const AgentDashboard = () => {
                         Est. GHS {Number(e.total_estimate).toLocaleString()}
                       </div>
                     ) : null}
+                    {isAdmin && isPendingReview && (
+                      <Button
+                        size="sm"
+                        className="w-full gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white mt-2"
+                        onClick={async () => {
+                          const id = e.id;
+                          setEvents((p) => p.map((x) => x.id === id ? { ...x, workflow_status: "approved" } : x));
+                          const { error } = await supabase.from("bookings").update({ workflow_status: "approved" } as any).eq("id", id);
+                          if (error) {
+                            toast.error("Could not approve", { description: error.message });
+                            fetchEvents();
+                          } else {
+                            toast.success("Event approved — user has been notified");
+                          }
+                        }}
+                      >
+                        <CheckCircle2 className="h-4 w-4" /> Approve Event
+                      </Button>
+                    )}
                     <div className="pt-3 flex items-center gap-1">
                       <Button
                         variant="ghost"
@@ -303,6 +338,8 @@ const AgentDashboard = () => {
             })}
           </div>
         )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Edit Event Dialog */}
