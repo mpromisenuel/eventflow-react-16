@@ -170,7 +170,7 @@ export default function PlanMyEvent() {
           event_type: data.eventType,
           guest_count: data.guestCount,
           addons: data as any,
-          workflow_status: "inquiry",
+          workflow_status: "pending_review",
           status: "active",
         } as any);
         if (error) {
@@ -178,7 +178,7 @@ export default function PlanMyEvent() {
           console.warn(error);
         }
       }
-      toast.success("Planning submitted! Our coordinators will reach out shortly.");
+      toast.success("Your event plan has been submitted and is now under admin review.");
       setData(initialState);
       setStep(0);
       navigate("/my-bookings");

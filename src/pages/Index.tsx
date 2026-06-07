@@ -101,7 +101,7 @@ const Index = () => {
       {/* Features */}
       <section className="container mx-auto px-4 py-16 md:py-20">
         <motion.h2 variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="font-display text-2xl md:text-3xl font-semibold text-center mb-12">
-          Why Rent With Eventful
+          Why Rent With JEP Event Service
         </motion.h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((f, i) => (
@@ -205,7 +205,7 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
-              <span className="font-display text-lg font-bold">Eventful Rentals</span>
+              <span className="font-display text-lg font-bold">JEP Event Service</span>
             </div>
             <div className="flex gap-8 text-sm font-body opacity-70">
               <Link to="/" className="hover:opacity-100 transition-opacity">Home</Link>
@@ -213,7 +213,7 @@ const Index = () => {
               <Link to="/events" className="hover:opacity-100 transition-opacity">Venues</Link>
               <Link to="/contact" className="hover:opacity-100 transition-opacity">Contact</Link>
             </div>
-            <p className="text-xs font-body opacity-50">© 2026 Eventful Rentals. All rights reserved.</p>
+            <p className="text-xs font-body opacity-50">© 2026 JEP Event Service. All rights reserved.</p>
           </div>
         </div>
       </footer>

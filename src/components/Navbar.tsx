@@ -5,6 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import NotificationBell from "@/components/NotificationBell";
 
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -38,7 +39,7 @@ const Navbar = () => {
         <Link to="/" className="flex items-center gap-2">
           <CalendarDays className="h-5 w-5 text-primary" />
           <span className="font-display text-xl font-bold text-foreground">
-            Eventful Rentals
+            JEP Event Service
           </span>
         </Link>
 
@@ -62,6 +63,7 @@ const Navbar = () => {
 
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
+          {user && <NotificationBell />}
           {user ? (
             <>
               <Button size="sm" variant="ghost" onClick={() => navigate("/profile")} className="hidden lg:flex items-center gap-1.5 text-xs font-body text-muted-foreground">

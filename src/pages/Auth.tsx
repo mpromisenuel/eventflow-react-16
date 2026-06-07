@@ -78,7 +78,7 @@ const Auth = () => {
             Plan Extraordinary<br />Events With Ease
           </h2>
           <p className="text-primary-foreground/80 font-body mt-4 max-w-md text-sm">
-            Join Eventful to discover and create memorable experiences — from beach celebrations to grand conferences.
+            Join JEP Event Service to discover and create memorable experiences — from beach celebrations to grand conferences.
           </p>
         </div>
       </motion.div>
@@ -91,7 +91,7 @@ const Auth = () => {
       >
         <div className="flex items-center gap-2 mb-10">
           <CalendarDays className="h-6 w-6 text-primary" />
-          <span className="font-display text-2xl font-bold text-foreground">Eventful</span>
+          <span className="font-display text-2xl font-bold text-foreground">JEP Event Service</span>
         </div>
 
         <h1 className="font-display text-3xl font-bold text-foreground mb-2">

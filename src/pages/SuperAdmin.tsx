@@ -55,16 +55,24 @@ interface Bk {
   addons: any;
 }
 
-type StageKey = "get_quote" | "customized" | "active" | "completed";
+type StageKey = "pending_review" | "get_quote" | "customized" | "active" | "completed";
 
 const STAGES: { key: StageKey; label: string; accent: string; ring: string; chip: string; match: string[] }[] = [
   {
+    key: "pending_review",
+    label: "Pending Admin Review",
+    accent: "bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-900",
+    ring: "ring-yellow-300/60",
+    chip: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-900 dark:text-yellow-200",
+    match: ["pending_review", "pending"],
+  },
+  {
     key: "get_quote",
-    label: "Get Quote",
+    label: "Approved / Quote",
     accent: "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900",
     ring: "ring-amber-300/60",
     chip: "bg-amber-100 dark:bg-amber-900/40 text-amber-900 dark:text-amber-200",
-    match: ["inquiry", "get_quote", "quote"],
+    match: ["inquiry", "get_quote", "quote", "approved"],
   },
   {
     key: "customized",
@@ -95,7 +103,7 @@ const STAGES: { key: StageKey; label: string; accent: string; ring: string; chip
 const toStage = (status: string): StageKey => {
   const s = (status || "").toLowerCase();
   const found = STAGES.find((st) => st.match.includes(s));
-  return found?.key ?? "get_quote";
+  return found?.key ?? "pending_review";
 };
 
 const AESTHETICS = ["Modern Minimal", "Classic Elegant", "Boho Chic", "Rustic Garden", "Black Tie Glam", "Tropical"];
@@ -188,6 +196,38 @@ const SuperAdmin = () => {
       fetchAll();
     } catch (e: any) {
       toast.error("Failed to revoke", { description: e?.message });
+    }
+  };
+
+  const makeSuperadmin = async (uid: string, email: string | null) => {
+    if (!confirm(`Promote ${email || "this user"} to SUPERADMIN? They will have full control.`)) return;
+    try {
+      const { error } = await supabase.from("user_roles").insert({ user_id: uid, role: "superadmin" as any });
+      if (error && !String(error.message).includes("duplicate")) throw error;
+      // also grant admin
+      await supabase.from("user_roles").insert({ user_id: uid, role: "admin" as any });
+      toast.success(`${email} is now a Superadmin`);
+      fetchAll();
+    } catch (e: any) {
+      toast.error("Promotion failed", { description: e?.message });
+    }
+  };
+
+  const deleteMyAccount = async () => {
+    if (!user) return;
+    if (!confirm("Delete your Superadmin account? This action cannot be undone.")) return;
+    if (user.email?.toLowerCase() === "davitorlele@gmail.com") {
+      return toast.error("Root superadmin account cannot be deleted from here.");
+    }
+    try {
+      // remove role rows + profile row; auth user deletion needs service role/backend
+      await supabase.from("user_roles").delete().eq("user_id", user.id);
+      await supabase.from("profiles").delete().eq("id", user.id);
+      await supabase.auth.signOut();
+      toast.success("Superadmin account removed. Signing out.");
+      navigate("/", { replace: true });
+    } catch (e: any) {
+      toast.error("Could not delete account", { description: e?.message });
     }
   };
 
@@ -308,7 +348,7 @@ const SuperAdmin = () => {
 
   // Group bookings by pipeline stage
   const grouped = useMemo(() => {
-    const map: Record<StageKey, Bk[]> = { get_quote: [], customized: [], active: [], completed: [] };
+    const map: Record<StageKey, Bk[]> = { pending_review: [], get_quote: [], customized: [], active: [], completed: [] };
     bookings.forEach((b) => map[toStage(b.workflow_status)].push(b));
     return map;
   }, [bookings]);
@@ -354,6 +394,17 @@ const SuperAdmin = () => {
             </Badge>
           </div>
 
+          {stage === "pending_review" && (
+            <Button
+              size="sm"
+              className="w-full gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => changeStage(b, "approved", "Approved")}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Approve Event
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          )}
           {stage === "get_quote" && (
             <Button
               size="sm"
@@ -508,7 +559,7 @@ const SuperAdmin = () => {
                 </div>
 
                 {/* Desktop: 4 vertical lanes */}
-                <div className="hidden lg:grid grid-cols-4 gap-4">
+                <div className="hidden lg:grid grid-cols-5 gap-4">
                   {STAGES.map((s) => (
                     <div
                       key={s.key}
@@ -559,6 +610,18 @@ const SuperAdmin = () => {
               </div>
             </Card>
 
+            <Card className="p-4 border-destructive/50 bg-destructive/5">
+              <h3 className="font-display font-semibold mb-2 flex items-center gap-2 text-destructive">
+                <Trash2 className="h-4 w-4" /> Danger Zone
+              </h3>
+              <p className="text-xs text-muted-foreground font-body mb-3">
+                Permanently remove your Superadmin role and profile record. You will be signed out.
+              </p>
+              <Button variant="destructive" size="sm" onClick={deleteMyAccount} className="gap-1.5">
+                <Trash2 className="h-3.5 w-3.5" /> Delete Superadmin Account
+              </Button>
+            </Card>
+
             <Card className="p-0 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -606,16 +669,28 @@ const SuperAdmin = () => {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          {u.roles.includes("admin") && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => revokeAdmin(u.id, u.email)}
-                              className="text-destructive gap-1"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" /> Revoke admin
-                            </Button>
-                          )}
+                          <div className="flex justify-end gap-1 flex-wrap">
+                            {!u.roles.includes("superadmin") && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => makeSuperadmin(u.id, u.email)}
+                                className="gap-1 text-xs h-7"
+                              >
+                                <Shield className="h-3 w-3" /> Make Superadmin
+                              </Button>
+                            )}
+                            {u.roles.includes("admin") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => revokeAdmin(u.id, u.email)}
+                                className="text-destructive gap-1 text-xs h-7"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" /> Revoke admin
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
