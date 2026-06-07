@@ -610,6 +610,18 @@ const SuperAdmin = () => {
               </div>
             </Card>
 
+            <Card className="p-4 border-destructive/50 bg-destructive/5">
+              <h3 className="font-display font-semibold mb-2 flex items-center gap-2 text-destructive">
+                <Trash2 className="h-4 w-4" /> Danger Zone
+              </h3>
+              <p className="text-xs text-muted-foreground font-body mb-3">
+                Permanently remove your Superadmin role and profile record. You will be signed out.
+              </p>
+              <Button variant="destructive" size="sm" onClick={deleteMyAccount} className="gap-1.5">
+                <Trash2 className="h-3.5 w-3.5" /> Delete Superadmin Account
+              </Button>
+            </Card>
+
             <Card className="p-0 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -657,16 +669,28 @@ const SuperAdmin = () => {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-right">
-                          {u.roles.includes("admin") && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => revokeAdmin(u.id, u.email)}
-                              className="text-destructive gap-1"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" /> Revoke admin
-                            </Button>
-                          )}
+                          <div className="flex justify-end gap-1 flex-wrap">
+                            {!u.roles.includes("superadmin") && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => makeSuperadmin(u.id, u.email)}
+                                className="gap-1 text-xs h-7"
+                              >
+                                <Shield className="h-3 w-3" /> Make Superadmin
+                              </Button>
+                            )}
+                            {u.roles.includes("admin") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => revokeAdmin(u.id, u.email)}
+                                className="text-destructive gap-1 text-xs h-7"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" /> Revoke admin
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))}
