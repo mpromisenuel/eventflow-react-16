@@ -527,7 +527,7 @@ const SuperAdmin = () => {
                 </div>
 
                 {/* Desktop: 4 vertical lanes */}
-                <div className="hidden lg:grid grid-cols-4 gap-4">
+                <div className="hidden lg:grid grid-cols-5 gap-4">
                   {STAGES.map((s) => (
                     <div
                       key={s.key}
