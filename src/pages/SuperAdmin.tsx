@@ -316,7 +316,7 @@ const SuperAdmin = () => {
 
   // Group bookings by pipeline stage
   const grouped = useMemo(() => {
-    const map: Record<StageKey, Bk[]> = { get_quote: [], customized: [], active: [], completed: [] };
+    const map: Record<StageKey, Bk[]> = { pending_review: [], get_quote: [], customized: [], active: [], completed: [] };
     bookings.forEach((b) => map[toStage(b.workflow_status)].push(b));
     return map;
   }, [bookings]);
@@ -362,6 +362,17 @@ const SuperAdmin = () => {
             </Badge>
           </div>
 
+          {stage === "pending_review" && (
+            <Button
+              size="sm"
+              className="w-full gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => changeStage(b, "approved", "Approved")}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Approve Event
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          )}
           {stage === "get_quote" && (
             <Button
               size="sm"
