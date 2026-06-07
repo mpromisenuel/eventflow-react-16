@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import TicketsPanel from "@/components/TicketsPanel";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
@@ -41,7 +43,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import {
-  CalendarDays, Plus, Trash2, Users, Sparkles, CalendarPlus, Pencil, CalendarIcon,
+  CalendarDays, Plus, Trash2, Users, Sparkles, CalendarPlus, Pencil, CalendarIcon, Ticket, CheckCircle2,
 } from "lucide-react";
 
 type PlannedEvent = {
